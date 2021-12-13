@@ -7,20 +7,20 @@
 		"vscode": "^1.63.0"
 	},
 	"categories": [
-		"Other"
+		"Formatters"
 	],
 	"activationEvents": [
-		"onCommand:flixformatter.helloWorld"
+		"onLanguage:flix"
 	],
 	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "flixformatter.helloWorld",
-				"title": "Hello World"
-			}
-		]
+	"capabilities": {
+		"documentFormattingProvider": "true"
 	},
+	"keywords": [
+		"visual studio code",
+		"flix",
+		"format"
+	],
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",

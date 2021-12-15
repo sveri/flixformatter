@@ -22,12 +22,17 @@ function getLineBreakChar(s: string): string {
   return '\n';
 }
 
-describe('Indentation should remain the same', () => {
 
-  it('for api files', async () => {
-    let addflix = fs.readFileSync('./src/test/resources/flixapi/Add.flix').toString();
-    console.log(formatCode(4, addflix, getLineBreakChar(addflix)));
-    expect(formatCode(4, addflix, getLineBreakChar(addflix))).to.equal(addflix);
+// let flixFolderFiles = await fs.promises.readdir('./src/test/resources/flixapi/', { withFileTypes: true });
+let flixFolderFiles = fs.readdirSync('./src/test/resources/flixapi/', { withFileTypes: true });
+
+flixFolderFiles.filter(f => f.isFile()).forEach(f => {
+
+  describe('Indentation should remain the same for: ' + f.name, async () => {
+    it(`api file`, async () => {
+      let fileContent = fs.readFileSync(`./src/test/resources/flixapi/${f.name}`).toString();
+      expect(formatCode(4, fileContent, getLineBreakChar(fileContent))).to.equal(fileContent);
+    });
   });
 
 });

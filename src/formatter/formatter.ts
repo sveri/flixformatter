@@ -1,6 +1,16 @@
 import { strictEqual } from 'assert';
 import * as vscode from 'vscode';
 
+
+enum FileState {
+    namespace,
+    function,
+    if,
+    else,
+    match,
+    case
+}
+
 function getFullTextRange() {
     let textEditor = vscode.window.activeTextEditor;
     if (textEditor === undefined) {
@@ -37,32 +47,54 @@ function addEolToLine(document: vscode.TextDocument, i: number, newText: string)
 }
 
 
-
-function indentLine(tabSize: number, indentationLevel: number, newLine: string): string {
-    if (indentationLevel === 0) {
+function indentLine(tabSize: number, state: FileState[], newLine: string): string {
+    if (state.length === 0) {
         return newLine;
     }
-    return " ".repeat(tabSize * indentationLevel) + newLine;
+    return " ".repeat(tabSize * state.length) + newLine;
 }
 
 
+
+
+
 export class FlixDocumentFormatter implements vscode.DocumentFormattingEditProvider {
+
     public provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
-        let tabSize = 4;
-        let indentationLevel = 0;
+        let tabSize = 2;
         let newText = "";
+        let state: FileState[] = [];
 
         for (let i = 0; i < document.lineCount; i++) {
             const line = document.lineAt(i);
-            let newLine = line.text.trim();
+            const trimmedLine = line.text.trim();
+            let newLine = trimmedLine;
 
-            newLine = indentLine(tabSize, indentationLevel, newLine);
+            if (trimmedLine.startsWith("}")) {
+                state.pop();
+            }
 
-            if (line.text.trim().startsWith("namespace")
-                || line.text.trim().startsWith("pub")
-                || line.text.trim().startsWith("def")
-                || line.text.trim().startsWith("match")) {
-                indentationLevel++;
+            newLine = indentLine(tabSize, state, newLine);
+
+            if (trimmedLine.startsWith("namespace")) {
+                state.push(FileState.namespace);
+            } else if (trimmedLine.startsWith("def")
+                || trimmedLine.startsWith("pub def")) {
+                state.push(FileState.function);
+            } else if (trimmedLine.startsWith("match") && trimmedLine.endsWith("{")) {
+                state.push(FileState.match);
+            } else if (trimmedLine.startsWith("case") && trimmedLine.endsWith("{")) {
+                state.push(FileState.case);
+            } else if (trimmedLine.startsWith("if")) {
+                state.push(FileState.if);
+            } else if (trimmedLine.startsWith("else")) {
+                state.push(FileState.else);
+            } else if (FileState.if === state[state.length - 1] && !trimmedLine.endsWith(";")) {
+                state.pop();
+            }else if (FileState.else === state[state.length - 1] && !trimmedLine.endsWith(";")) {
+                state.pop();
+            } else if (FileState.function === state[state.length - 1] && !trimmedLine.endsWith(";") && !trimmedLine.endsWith("=")) {
+                state.pop();
             }
 
             newText += newLine;
@@ -76,34 +108,4 @@ export class FlixDocumentFormatter implements vscode.DocumentFormattingEditProvi
 
         return [vscode.TextEdit.replace(getFullTextRange(), newText)];
     }
-    // public provideDocumentFormattingEdits(document: vscode.TextDocument):
-    //     Thenable<vscode.TextEdit[]> {
-    //     let tabSize = 4;
-    //     let insertSpaces = true;
-
-    //     const editor = vscode.window.activeTextEditor;
-    //     if (editor) {
-    //         tabSize = editor.options.tabSize as number;
-    //         insertSpaces = editor.options.insertSpaces as boolean;
-    //     }
-    //     const indent = insertSpaces ? ' '.repeat(tabSize) : '\t';
-
-    //     const lang = document.languageId, uri = document.uri;
-    //     const langConfig = vscode.workspace.getConfiguration(`[${lang}]`, uri);
-    //     const config = vscode.workspace.getConfiguration('editor', uri);
-    //     const width =
-    //         langConfig['editor.wordWrapColumn'] ||
-    //         config.get('wordWrapColumn', 80);
-
-    //     const text = document.getText();
-    //     const range = new vscode.Range(
-    //         document.positionAt(0),
-    //         document.positionAt(text.length)
-    //     );
-    //     console.log(text);
-    //     return Promise.resolve([
-    //         new vscode.TextEdit(range, text)
-    //         // new vscode.TextEdit(range, format(text, indent, width))
-    //     ]);
-    // }
 }

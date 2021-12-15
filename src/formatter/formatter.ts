@@ -1,4 +1,3 @@
-import { strictEqual } from 'assert';
 import * as vscode from 'vscode';
 
 
@@ -9,34 +8,6 @@ enum FileState {
     else,
     match,
     case
-}
-
-function getFullTextRange() {
-    let textEditor = vscode.window.activeTextEditor;
-    if (textEditor === undefined) {
-        return new vscode.Range(0, 0, 10, 10);
-    }
-    const firstLine = textEditor.document.lineAt(0);
-    const lastLine = textEditor.document.lineAt(textEditor.document.lineCount - 1);
-
-    return new vscode.Range(
-        0,
-        firstLine.range.start.character,
-        textEditor.document.lineCount - 1,
-        lastLine.range.end.character
-    );
-}
-
-function getEol(document: vscode.TextDocument): string {
-    switch (document.eol) {
-        case vscode.EndOfLine.CRLF:
-            return "\r\n";
-            break;
-
-        default:
-            return "\n";
-            break;
-    }
 }
 
 function addEolToLine(numberLines: number, i: number, eol: string, newText: string) {
@@ -55,7 +26,7 @@ function indentLine(tabSize: number, state: FileState[], newLine: string): strin
 }
 
 
-function formatCode(tabSize: number, text: string, eol: string): string {
+export function formatCode(tabSize: number, text: string, eol: string): string {
     let newText = "";
     let state: FileState[] = [];
     let lines = text.split(eol);
@@ -100,15 +71,4 @@ function formatCode(tabSize: number, text: string, eol: string): string {
     }
 
     return newText;
-}
-
-
-
-export class FlixDocumentFormatter implements vscode.DocumentFormattingEditProvider {
-
-    public provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
-        let tabSize = 4;
-        const newText = formatCode(tabSize, document.getText(), getEol(document));
-        return [vscode.TextEdit.replace(getFullTextRange(), newText)];
-    }
 }

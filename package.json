@@ -28,7 +28,7 @@
 		"pretest": "npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",
 		"test": "node ./out/test/runTest.js",
-		"unittest": "mocha -r ts-node/register src/**/*.spec.ts"
+		"test:unit": "mocha -r ts-node/register src/**/*.spec.ts"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.3.0",

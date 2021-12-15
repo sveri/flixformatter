@@ -2,7 +2,12 @@ import * as vscode from 'vscode';
 
 
 enum FileState {
+    comment,
+    multilinecomment,
+    oneliner,
     namespace,
+    class,
+    instance,
     function,
     if,
     else,
@@ -19,6 +24,9 @@ function addEolToLine(numberLines: number, i: number, eol: string, newText: stri
 
 
 function indentLine(tabSize: number, state: FileState[], newLine: string): string {
+    if (newLine.startsWith("*")) {
+        newLine = " " + newLine;
+    }
     if (state.length === 0) {
         return newLine;
     }
@@ -37,6 +45,10 @@ export function formatCode(tabSize: number, text: string, eol: string): string {
         const trimmedLine = line.trim();
         let newLine = trimmedLine;
 
+        if (FileState.oneliner === state[state.length - 1]) {
+            state.pop();
+        }
+
         if (trimmedLine.startsWith("}")) {
             state.pop();
         }
@@ -45,7 +57,16 @@ export function formatCode(tabSize: number, text: string, eol: string): string {
 
         if (trimmedLine.startsWith("namespace")) {
             state.push(FileState.namespace);
-        } else if (trimmedLine.startsWith("def")
+        } else if (trimmedLine.startsWith("lawless class")
+            || trimmedLine.startsWith("pub lawless class")) {
+            state.push(FileState.class);
+        } else if (trimmedLine.startsWith("instance")) {
+            state.push(FileState.instance);
+        }
+        else if (trimmedLine.startsWith("pub") && !trimmedLine.endsWith("=")) {
+            state.push(FileState.oneliner);
+        }
+        else if (trimmedLine.startsWith("def")
             || trimmedLine.startsWith("pub def")) {
             state.push(FileState.function);
         } else if (trimmedLine.startsWith("match") && trimmedLine.endsWith("{")) {
@@ -56,9 +77,11 @@ export function formatCode(tabSize: number, text: string, eol: string): string {
             state.push(FileState.if);
         } else if (trimmedLine.startsWith("else")) {
             state.push(FileState.else);
-        } else if (FileState.if === state[state.length - 1] && !trimmedLine.endsWith(";")) {
+        }
+
+        else if (FileState.if === state[state.length - 1] && !trimmedLine.endsWith(";")) {
             state.pop();
-        }else if (FileState.else === state[state.length - 1] && !trimmedLine.endsWith(";")) {
+        } else if (FileState.else === state[state.length - 1] && !trimmedLine.endsWith(";")) {
             state.pop();
         } else if (FileState.function === state[state.length - 1] && !trimmedLine.endsWith(";") && !trimmedLine.endsWith("=")) {
             state.pop();

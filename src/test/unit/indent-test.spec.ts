@@ -1,21 +1,33 @@
-// import { hello } from './hello-world';
 import { expect } from 'chai';
 import 'mocha';
-
-
 import * as fs from 'fs';
 
-import {FlixDocumentFormatter} from '../../formatter/flix.document.formatter';
+import { formatCode } from '../../formatter/formatter';
+
+function getLineBreakChar(s: string): string {
+  const indexOfLF = s.indexOf('\n', 1);  // No need to check first-character
+
+  if (indexOfLF === -1) {
+    if (s.indexOf('\r') !== -1) {
+      return '\r';
+    }
+
+    return '\n';
+  }
+
+  if (s[indexOfLF - 1] === '\r') {
+    return '\r\n';
+  }
+
+  return '\n';
+}
 
 describe('Indentation should remain the same', () => {
 
   it('for api files', async () => {
-      console.log(fs.readdirSync('./'));
-      let addflix = fs.readFileSync('./src/test/resources/flixapi/Add.flix');
-      console.log(addflix.toString());
-    // const document = await vscode.workspace.openTextDocument('');
-    // new FlixDocumentFormatter().provideDocumentFormattingEdits(document);
-    expect(1).to.equal(1);
+    let addflix = fs.readFileSync('./src/test/resources/flixapi/Add.flix').toString();
+    console.log(formatCode(4, addflix, getLineBreakChar(addflix)));
+    expect(formatCode(4, addflix, getLineBreakChar(addflix))).to.equal(addflix);
   });
 
 });

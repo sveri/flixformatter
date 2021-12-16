@@ -57,7 +57,8 @@ export function formatCode(tabSize: number, text: string, eol: string): string {
 
         if (trimmedLine.startsWith("namespace")) {
             state.push(FileState.namespace);
-        } else if (trimmedLine.startsWith("lawless class")
+        } else if (trimmedLine.startsWith("class")
+            || trimmedLine.startsWith("lawless class")
             || trimmedLine.startsWith("pub lawless class")) {
             state.push(FileState.class);
         } else if (trimmedLine.startsWith("instance")) {

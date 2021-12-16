@@ -23,7 +23,20 @@ function getLineBreakChar(s: string): string {
 }
 
 
-// let flixFolderFiles = await fs.promises.readdir('./src/test/resources/flixapi/', { withFileTypes: true });
+
+// describe('Indentation should remain the same for: ', () => {
+//   it(`api file`, async () => {
+//       // let flixFolderFiles = fs.readdirSync('./src/test/resources/flixapi/', { withFileTypes: true });
+      
+//       // flixFolderFiles.filter(f => f.isFile()).forEach(f => {
+//       let fileContent = fs.readFileSync(`./src/test/resources/flixapi/Applicative.flix`).toString();
+//       expect(formatCode(4, fileContent, getLineBreakChar(fileContent))).to.equal(fileContent);
+//     // });
+//   });
+
+// });
+
+
 let flixFolderFiles = fs.readdirSync('./src/test/resources/flixapi/', { withFileTypes: true });
 
 flixFolderFiles.filter(f => f.isFile()).forEach(f => {

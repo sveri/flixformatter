@@ -45,8 +45,8 @@ export function formatCode(tabSize: number, text: string, eol: string): string {
     let numberLines = lines.length;
     let popAt: number[] = [];
 
-    for (let i = 0; i < numberLines; i++) {
-        const line = lines[i];
+    for (let currentLineIndex = 0; currentLineIndex < numberLines; currentLineIndex++) {
+        const line = lines[currentLineIndex];
         const trimmedLine = line.trim();
 
         // if (popAt > 0 && popAt === i) {
@@ -54,23 +54,23 @@ export function formatCode(tabSize: number, text: string, eol: string): string {
         //     popAt = 0;
         // }
 
-        for (let j = popAt.length - 1; j >= 0; j--) {
-            let pop = popAt[j];
-            if (i === pop) {
+        for (let popAtIndex = popAt.length - 1; popAtIndex >= 0; popAtIndex--) {
+            let pop = popAt[popAtIndex];
+            if (currentLineIndex === pop) {
                 state.pop();
-                popAt.splice(i, 1);
+                popAt.splice(currentLineIndex, 1);
             }
         }
 
         if (trimmedLine === "") {
             newText += trimmedLine;
-            newText = addEolToLine(numberLines, i, eol, newText);
+            newText = addEolToLine(numberLines, currentLineIndex, eol, newText);
             continue;
         }
 
-        if (trimmedLine.startsWith("}")) {
-            state.pop();
-        }
+        // if (trimmedLine.startsWith("}")) {
+        //     state.pop();
+        // }
 
         let newLine = trimmedLine;
 
@@ -86,13 +86,15 @@ export function formatCode(tabSize: number, text: string, eol: string): string {
         }
         else if (trimmedLine.startsWith("pub lawless class") || trimmedLine.startsWith("pub class") || trimmedLine.startsWith("class")) {
             state.push(FileState.class);
+            popAt.push(findEndOfConstruct(lines, currentLineIndex));
         } else if (trimmedLine.startsWith("pub def") || trimmedLine.startsWith("def")) {
             state.push(FileState.function);
-            popAt.push(findLineWhereFunctionEnds(lines, i));
+            popAt.push(findLineWhereFunctionEnds(lines, currentLineIndex));
         } else if (trimmedLine.startsWith("namespace")) {
             state.push(FileState.namespace);
         } else if (trimmedLine.startsWith("instance")) {
             state.push(FileState.instance);
+            popAt.push(findEndOfConstruct(lines, currentLineIndex));
         }else if (trimmedLine.startsWith("match")) {
             state.push(FileState.match);
         }
@@ -102,14 +104,14 @@ export function formatCode(tabSize: number, text: string, eol: string): string {
         // if oneliner: if (a < b) c = d
         else if (trimmedLine.startsWith("if") && !trimmedLine.endsWith(")") && !trimmedLine.endsWith("{")) {
             state.push(FileState.if);
-            popAt.push(i + 1);
+            popAt.push(currentLineIndex + 1);
         }
         // if without braces: 
         // if (a < b) 
         //    c = d
         else if (trimmedLine.startsWith("if") && !trimmedLine.endsWith("{")) {
             state.push(FileState.if);
-            popAt.push(i + 2);
+            popAt.push(currentLineIndex + 2);
         }
         // multiline if
         // if (a < b) {
@@ -117,20 +119,21 @@ export function formatCode(tabSize: number, text: string, eol: string): string {
         // }
         else if (trimmedLine.startsWith("if")) {
             state.push(FileState.if);
+            popAt.push(findEndOfConstruct(lines, currentLineIndex));            
         }
 
 
         // else if oneliner: else if (a < b) c = d
         else if ((trimmedLine.startsWith("else if") || trimmedLine.startsWith("} else if")) && !trimmedLine.endsWith(")") && !trimmedLine.endsWith("{")) {
             state.push(FileState.elseif);
-            popAt.push(i + 1);
+            popAt.push(currentLineIndex + 1);
         }
         // else if without braces: 
         // else if (a < b) 
         //    c = d
         else if ((trimmedLine.startsWith("else if") || trimmedLine.startsWith("} else if")) && !trimmedLine.endsWith("{")) {
             state.push(FileState.elseif);
-            popAt.push(i + 2);
+            popAt.push(currentLineIndex + 2);
         }
         // multilin else if
         // if (a < b) {
@@ -138,6 +141,7 @@ export function formatCode(tabSize: number, text: string, eol: string): string {
         // }
         else if (trimmedLine.startsWith("else if") || trimmedLine.startsWith("} else if")) {
             state.push(FileState.elseif);
+            popAt.push(findEndOfConstruct(lines, currentLineIndex));
         }
 
 
@@ -146,7 +150,7 @@ export function formatCode(tabSize: number, text: string, eol: string): string {
         //    c = d
         else if (trimmedLine === "else" || trimmedLine === "} else") {
             state.push(FileState.else);
-            popAt.push(i + 2);
+            popAt.push(currentLineIndex + 2);
         }
         // else oneliner: else c = d
         else if ((trimmedLine.startsWith("else") || trimmedLine.startsWith("} else")) && !trimmedLine.endsWith("{")) {
@@ -157,18 +161,23 @@ export function formatCode(tabSize: number, text: string, eol: string): string {
         // }
         else if ((trimmedLine.startsWith("else") || trimmedLine.startsWith("} else")) && trimmedLine.endsWith("{")) {
             state.push(FileState.else);
+            popAt.push(findEndOfConstruct(lines, currentLineIndex));
+            // popAt.push(findEndOfMatchingOpeningBracket(lines, currentLineIndex));
         }
 
         newText += newLine;
 
-        newText = addEolToLine(numberLines, i, eol, newText);
+        newText = addEolToLine(numberLines, currentLineIndex, eol, newText);
 
     }
 
     return newText;
 }
 
-function findLineWhereFunctionEnds(lines: string[], currentLineIndex: number): number {
+
+
+// function findEndOfConstruct(lines: string[], currentLineIndex: number, fn: (i: number, uncountedLines: number) => number): number {
+function findEndOfConstruct(lines: string[], currentLineIndex: number): number {
     let uncountedLines = 0;
     let unmatchedBrackets = 0;
     for (let i = currentLineIndex + 1; i < lines.length; i++) {
@@ -186,14 +195,97 @@ function findLineWhereFunctionEnds(lines: string[], currentLineIndex: number): n
             unmatchedBrackets--;
         }
 
-        if (trimmedLine.startsWith("pub") || trimmedLine.startsWith("def") || trimmedLine.startsWith("@")
-            || (unmatchedBrackets === 0 && trimmedLine.startsWith("}"))) {
-            return i - uncountedLines;
+        if (unmatchedBrackets === 0 && trimmedLine.startsWith("}")) {
+            // return fn(i, uncountedLines);
+            return i;
         }
     }
 
     return lines.length;
 }
+
+function findLineWhereFunctionEnds(lines: string[], currentLineIndex: number): number {
+    let uncountedLines = 0;
+    let unmatchedBrackets = 0;
+    for (let i = currentLineIndex + 1; i < lines.length; i++) {
+        let trimmedLine = lines[i].trim();
+        if (trimmedLine.startsWith("//") || trimmedLine.startsWith("/*") || trimmedLine.startsWith("*") || trimmedLine === "") {
+            uncountedLines++;
+            continue;
+        }
+
+        if (trimmedLine.indexOf("{") > -1) {
+            unmatchedBrackets++;
+        }
+
+        
+        if (trimmedLine.startsWith("pub") || trimmedLine.startsWith("def") || trimmedLine.startsWith("@")
+        || (unmatchedBrackets === 0 && trimmedLine.startsWith("}"))) {
+            return i - uncountedLines;
+        }
+        
+        if (unmatchedBrackets > 0 && trimmedLine.indexOf("}") > -1) {
+            unmatchedBrackets--;
+        }
+        // if (trimmedLine.startsWith("pub") || trimmedLine.startsWith("def") || trimmedLine.startsWith("@")) {
+        //     return i - uncountedLines;
+        // }
+    }
+
+    return lines.length;
+}
+
+// function findEndOfMatchingIf(lines: string[], currentLineIndex: number): number {
+//     let uncountedLines = 0;
+//     let unmatchedBrackets = 0;
+//     for (let i = currentLineIndex + 1; i < lines.length; i++) {
+//         let trimmedLine = lines[i].trim();
+//         if (trimmedLine.startsWith("//") || trimmedLine.startsWith("/*") || trimmedLine.startsWith("*") || trimmedLine === "") {
+//             uncountedLines++;
+//             continue;
+//         }
+
+//         if (trimmedLine.indexOf("{") > -1) {
+//             unmatchedBrackets++;
+//         }
+
+//         if (unmatchedBrackets > 0 && trimmedLine.indexOf("}") > -1) {
+//             unmatchedBrackets--;
+//         }
+
+//         if (unmatchedBrackets === 0 && trimmedLine.startsWith("}")) {
+//             return i - uncountedLines + 1;
+//         }
+//     }
+
+//     return lines.length;
+// }
+
+// function findEndOfMatchingOpeningBracket(lines: string[], currentLineIndex: number): number {
+//     let uncountedLines = 0;
+//     let unmatchedBrackets = 0;
+//     for (let i = currentLineIndex + 1; i < lines.length; i++) {
+//         let trimmedLine = lines[i].trim();
+//         if (trimmedLine.startsWith("//") || trimmedLine.startsWith("/*") || trimmedLine.startsWith("*") || trimmedLine === "") {
+//             uncountedLines++;
+//             continue;
+//         }
+
+//         if (trimmedLine.indexOf("{") > -1) {
+//             unmatchedBrackets++;
+//         }
+
+//         if (unmatchedBrackets > 0 && trimmedLine.indexOf("}") > -1) {
+//             unmatchedBrackets--;
+//         }
+
+//         if (unmatchedBrackets === 0 && trimmedLine.startsWith("}")) {
+//             return i - uncountedLines;
+//         }
+//     }
+
+//     return lines.length;
+// }
 
 // function ends when we are 
 // - in a function state
@@ -244,6 +336,7 @@ function checkIfLastStatementInFunction(lines: string[], numberLines: number, li
     console.log("after for " + lineIndex);
     return true;
 }
+
 
 
 

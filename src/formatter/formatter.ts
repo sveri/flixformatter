@@ -196,7 +196,6 @@ function findEndOfConstruct(lines: string[], currentLineIndex: number): number {
         }
 
         if (unmatchedBrackets === 0 && trimmedLine.startsWith("}")) {
-            // return fn(i, uncountedLines);
             return i;
         }
     }

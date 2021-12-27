@@ -4,12 +4,13 @@
 // @ts-ignore
 function id(d: any[]): any { return d[0]; }
 declare var comment: any;
-declare var NL: any;
 declare var identifier: any;
 declare var lbracket: any;
 declare var rbracket: any;
 declare var lbrace: any;
 declare var rbrace: any;
+declare var pub: any;
+declare var lawless: any;
 declare var divider: any;
 declare var assignement: any;
 declare var lparen: any;
@@ -67,6 +68,8 @@ let lexer = moo.compile({
     divider: [':', ';'],
     assignement: ['='],
     pubdef: 'pub def',
+    pub: 'pub',
+    lawless: 'lawless',
     identifier: /[\w.$.*]+/
 });
 
@@ -105,11 +108,21 @@ const grammar: Grammar = {
     {"name": "main$ebnf$1$subexpression$1", "symbols": ["comment"]},
     {"name": "main$ebnf$1", "symbols": ["main$ebnf$1", "main$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "main", "symbols": ["main$ebnf$1"], "postprocess": d => {return ({ type: "main", body: d[0]})}},
-    {"name": "comment", "symbols": [(lexer.has("comment") ? {type: "comment"} : comment), (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": id},
-    {"name": "expression", "symbols": ["instance"]},
-    {"name": "instance", "symbols": [{"literal":"instance"}, "_", (lexer.has("identifier") ? {type: "identifier"} : identifier), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("identifier") ? {type: "identifier"} : identifier), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), "_", (lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", "instanceBody", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace), "_"], "postprocess": d => {return { type: "instance", name: d[2], instanceTypeInfo: d[4], body: d[9]}}},
+    {"name": "comment", "symbols": [(lexer.has("comment") ? {type: "comment"} : comment), "_"], "postprocess": id},
+    {"name": "expression", "symbols": ["instance"], "postprocess": id},
+    {"name": "expression", "symbols": ["class"], "postprocess": id},
+    {"name": "instance", "symbols": [{"literal":"instance"}, "__", (lexer.has("identifier") ? {type: "identifier"} : identifier), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("identifier") ? {type: "identifier"} : identifier), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), "_", (lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", "instanceBody", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace), "_"], "postprocess": d => {return { type: "instance", name: d[2], instanceTypeInfo: d[4], body: d[9]}}},
     {"name": "instanceBody", "symbols": ["method"], "postprocess": id},
-    {"name": "method", "symbols": ["pubdef", "__", (lexer.has("identifier") ? {type: "identifier"} : identifier), "_", "argsWithParenWithType", "_", (lexer.has("divider") ? {type: "divider"} : divider), "_", "returnType", "_", (lexer.has("assignement") ? {type: "assignement"} : assignement), "_", "methodBody", "_"], "postprocess": d => {return { type: "method", pubdef: d[0], name: d[2], args: d[4], returnType: d[8], body: d[12]}}},
+    {"name": "class$ebnf$1", "symbols": []},
+    {"name": "class$ebnf$1$subexpression$1", "symbols": [(lexer.has("lawless") ? {type: "lawless"} : lawless), "__"]},
+    {"name": "class$ebnf$1", "symbols": ["class$ebnf$1", "class$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "class", "symbols": [(lexer.has("pub") ? {type: "pub"} : pub), "__", "class$ebnf$1", {"literal":"class"}, "__", (lexer.has("identifier") ? {type: "identifier"} : identifier), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("identifier") ? {type: "identifier"} : identifier), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), "__", (lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", "classBody", "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => {return { type: "class", name: d[5], classTypeInfo: d[7], body: d[12]}}},
+    {"name": "classBody$ebnf$1", "symbols": []},
+    {"name": "classBody$ebnf$1$subexpression$1", "symbols": ["comment"]},
+    {"name": "classBody$ebnf$1$subexpression$1", "symbols": ["method"]},
+    {"name": "classBody$ebnf$1", "symbols": ["classBody$ebnf$1", "classBody$ebnf$1$subexpression$1"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "classBody", "symbols": ["classBody$ebnf$1"]},
+    {"name": "method", "symbols": ["pubdef", "__", (lexer.has("identifier") ? {type: "identifier"} : identifier), "_", "argsWithParenWithType", "_", (lexer.has("divider") ? {type: "divider"} : divider), "_", "returnType", "_", (lexer.has("assignement") ? {type: "assignement"} : assignement), "_", "methodBody", "_"]},
     {"name": "argsWithParenWithType$ebnf$1", "symbols": []},
     {"name": "argsWithParenWithType$ebnf$1", "symbols": ["argsWithParenWithType$ebnf$1", "arglistWithType"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "argsWithParenWithType", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", "argsWithParenWithType$ebnf$1", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": d => ({ type: "argsWithParenWithType", args: d[2]})},

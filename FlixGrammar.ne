@@ -52,6 +52,8 @@ let lexer = moo.compile({
     divider: [':', ';'],
     assignement: ['='],
     pubdef: 'pub def',
+    pub: 'pub',
+    lawless: 'lawless',
     identifier: /[\w.$.*]+/
 });
 %}
@@ -59,24 +61,28 @@ let lexer = moo.compile({
 # Pass your lexer object using the @lexer option:
 @lexer lexer
 
-# main -> (expression | comment):* {% d => {console.log("main: " + JSON.stringify(d)); return d]} %}
-# main -> (expression | comment):* {% d => {console.log("main: " + JSON.stringify(d)); return ({ type: "main", body: d[0]})} %}
 main -> (expression | comment):* {% d => {return ({ type: "main", body: d[0]})} %}
 
-# comment -> %comment %NL {% d => {console.log("comment: " + JSON.stringify(d[0])); return d[0]} %}
-comment -> %comment %NL {% id %}
+comment -> %comment _ {% id %}
 
-expression -> instance
+expression -> instance {% id %}
+    | class {% id %}
 
 # instance Add[Float32] {
-instance -> "instance" _ %identifier %lbracket %identifier %rbracket _ %lbrace _ instanceBody  %rbrace _
+instance -> "instance" __ %identifier %lbracket %identifier %rbracket _ %lbrace _ instanceBody  %rbrace _
 {% d => {return { type: "instance", name: d[2], instanceTypeInfo: d[4], body: d[9]}} %}
-
 
 instanceBody -> method {% id %}
 
-method -> pubdef __ %identifier _ argsWithParenWithType _ %divider _ returnType _ %assignement _ methodBody _
-{% d => {return { type: "method", pubdef: d[0], name: d[2], args: d[4], returnType: d[8], body: d[12]}} %}
+# class
+class -> %pub __ (%lawless __):* "class" __  %identifier %lbracket %identifier %rbracket __ %lbrace _ classBody _ %rbrace
+{% d => {return { type: "class", name: d[5], classTypeInfo: d[7], body: d[12]}} %}
+
+classBody -> (comment | method):*
+
+method -> pubdef __ %identifier _ argsWithParenWithType _ %divider _ returnType _ %assignement _ methodBody _ 
+    {% d => {return { type: "method", pubdef: d[0], name: d[2], args: d[4], returnType: d[8], body: d[12]}} %}    
+    # | pubdef __ %identifier _ argsWithParenWithType _ %divider _ returnType
 
 # (x: Float32, y: Float32)
 argsWithParenWithType -> %lparen _ arglistWithType:* _ %rparen

@@ -47,7 +47,7 @@ function parseArgsWithParen(args: [any]): string {
 function parseShortMethodBody(body: any): string {
     let resultString = "";
 
-    console.log("body: " + JSON.stringify(body));
+    // console.log("body: " + JSON.stringify(body));
 
     resultString += body.name.text;
 
@@ -59,7 +59,7 @@ function parseShortMethodBody(body: any): string {
 function parseMethod(methodBody: any, tabSize: number, indentationLevel: number): string {
     let resultString = "";
 
-    console.log("methodBody: " + JSON.stringify(methodBody));
+    // console.log("methodBody: " + JSON.stringify(methodBody));
 
     resultString += getSpaces(tabSize, indentationLevel);
     
@@ -110,25 +110,25 @@ function parseResult(results: any, tabSize: number): string {
     let indentationLevel = 0;
 
     if (results.type === 'main') {
-        // console.log("main_element: " + JSON.stringify(results));
+        console.log("main_element: " + JSON.stringify(results));
 
-        for (const resultBodyArray of results.body as any) {
+        // for (const resultBodyArray of results.body as any) {
             // console.log("results_array: " + JSON.stringify(resultBodyArray));
-            for (const body of resultBodyArray as any) {
+            for (const body of results.body as any) {
                 if (body.type === 'comment') {
                     resultString += body.text + "\n";
                 } else if (Array.isArray(body)) {
                     for (const bodyArray of body as any) {
                         if (bodyArray.type === 'instance') {
-                            resultString += parseInstance(bodyArray, tabSize, indentationLevel);
+                            resultString += parseInstance(bodyArray, tabSize, indentationLevel) + "\n\n";
                         }
                     }
                 }
             }
-        }
+        // }
     }
 
-    return resultString;
+    return resultString.trim();
 }
 
 export function recursionTest(results: any, resultString: string): string {

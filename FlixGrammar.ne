@@ -68,33 +68,43 @@ comment -> %comment %NL {% id %}
 
 expression -> instance
 
-# comment -> %comment {% d => {console.log("comment: " + JSON.stringify(d[0])); return ({ type: "comment", data: d[0]})} %}
+# instance Add[Float32] {
+instance -> "instance" _ %identifier %lbracket %identifier %rbracket _ %lbrace _ instanceBody  %rbrace _
+{% d => {return { type: "instance", name: d[2], instanceTypeInfo: d[4], body: d[9]}} %}
 
-instance -> "instance" _ %identifier %lbracket %identifier %rbracket _ %lbrace _ instanceBody  %rbrace %NL:* 
-{% d => {return { type: "instance", name: d[2], instanceTypeInfo: [4], body: d[5]}} %}
-# {% id %}
-# {% d => {console.log("instance: " + JSON.stringify(d[0])); return { type: "instance", name: d[2], body: d[5]}} %}
 
-instanceBody -> method
+instanceBody -> method {% id %}
 
 method -> pubdef __ %identifier _ argsWithParenWithType _ %divider _ returnType _ %assignement _ methodBody _
+{% d => {return { type: "method", pubdef: d[0], name: d[2], args: d[4], returnType: d[8], body: d[12]}} %}
 
 # (x: Float32, y: Float32)
 argsWithParenWithType -> %lparen _ arglistWithType:* _ %rparen
+{% d => ({ type: "argsWithParenWithType", args: d[2]}) %}
 arglistWithType -> param _ %divider _ paramType _ %comma:* _
+{% d => ({ type: "arglistWithType", param: d[0], paramType: d[4]}) %}
 
-param -> %identifier
-paramType -> %identifier
+param -> %identifier {% id %}
+paramType -> %identifier {% id %}
 
-pubdef -> "def" | %pubdef
+pubdef -> "def" | %pubdef {% id %}
 
-returnType -> %identifier
+returnType -> %identifier {% id %}
 
-methodBody -> %identifier argsWithParen
+methodBody -> shortMethodBody {% id %}
+    | longMethodBody {% id %}
+
+# = $FLOAT32_ADD$(x, y)
+shortMethodBody -> %identifier argsWithParen
+{% d => ({ type: "shortMethodBody", name: d[0], args: d[1]}) %}
+
+longMethodBody -> %identifier
 
 # (x, y)
 argsWithParen -> %lparen _ arglist:* _ %rparen
+{% d => ({ type: "argsWithParen", args: d[2]}) %}
 arglist -> param _ %comma:* _
+{% d => ({ type: "arglist", param: d[0]}) %}
 
 _ -> %space:*
 __ -> %space:+ 

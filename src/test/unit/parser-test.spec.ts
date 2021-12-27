@@ -14,11 +14,10 @@ describe('Indentation should remain the same for: ', () => {
 
     //     expect(parse(`//\n//\r\n`)).to.equal("//\n//\n");
     // });
-    it(`instance`, () => {
-
+    it(`instance with pub def`, () => {
         expect(parse(`instance Add[Float32] {
     pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)
-}`)).to.equal(`instance Add[Float32] {
+}`, 4)).to.equal(`instance Add[Float32] {
     pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)
 }`);
     });

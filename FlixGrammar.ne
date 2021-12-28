@@ -26,19 +26,10 @@ function returnAllData(type: string, a: any[]){
 
 function nullify(d: any) { return null; }
 
-const appendItem = (a: any, b: any): any => { 
-    return (d: any) => { 
-        console.log("append: " + JSON.stringify(d));
-        console.log("append d[a]: " + JSON.stringify(d[a]));
-        return d.concat([d[b]]); 
-    } 
-};
-
 let lexer = moo.compile({    
     //comment: /\/\/.*[\n|\r\n]+/,
     comment: /\/\/.*/,
     space: { match: /\s/, lineBreaks: true },
-    NL: { match: /[\n|\r\n]+/, lineBreaks: true },
     //keywords: ['interface'],
     //WS:      /[ \t]+/,
     //WS:      { match: /[ \t\n\r]+/, lineBreaks: true },
@@ -61,9 +52,10 @@ let lexer = moo.compile({
 # Pass your lexer object using the @lexer option:
 @lexer lexer
 
-main -> (expression | comment):* {% d => {return ({ type: "main", body: d[0]})} %}
+main -> (expression | comment ):* {% d => {return ({ type: "main", body: d[0]})} %}
 
-comment -> %comment _ {% id %}
+
+comment -> %comment _ {% d => {return d[0]} %}
 
 expression -> instance {% id %}
     | class {% id %}
@@ -75,14 +67,21 @@ instance -> "instance" __ %identifier %lbracket %identifier %rbracket _ %lbrace 
 instanceBody -> method {% id %}
 
 # class
-class -> %pub __ (%lawless __):* "class" __  %identifier %lbracket %identifier %rbracket __ %lbrace _ classBody _ %rbrace
-{% d => {return { type: "class", name: d[5], classTypeInfo: d[7], body: d[12]}} %}
+class -> %pub __ lawless "class" __  %identifier %lbracket %identifier %rbracket __ %lbrace _ classBody _ %rbrace
+{% d => { return { type: "class", lawless: d[2], name: d[5], classTypeInfo: d[7], body: d[12]}} %}
 
-classBody -> (comment | method):*
+lawless -> (%lawless __):* {% d => {if(d[0][0] === undefined) return {lawless: false}; else return {lawless: true};} %}
 
-method -> pubdef __ %identifier _ argsWithParenWithType _ %divider _ returnType _ %assignement _ methodBody _ 
+# classBody -> (comment | method):* {% d => {console.log(JSON.stringify(d[0])); return null} %}
+classBody -> (comment | method):* {% id %}
+
+            # pub def add(x: a, y: a): a
+method -> pubdef __ %identifier _ argsWithParenWithType _ %divider _ returnType
+    {% d => {return { type: "methodDeclaration", pubdef: d[0], name: d[2], args: d[4], returnType: d[8]}} %}
+    # pub def add(x: Float64, y: Float64): Float64 = $FLOAT64_ADD$(x, y)
+    | pubdef __ %identifier _ argsWithParenWithType _ %divider _ returnType _ %assignement _ methodBody _ 
     {% d => {return { type: "method", pubdef: d[0], name: d[2], args: d[4], returnType: d[8], body: d[12]}} %}    
-    # | pubdef __ %identifier _ argsWithParenWithType _ %divider _ returnType
+    
 
 # (x: Float32, y: Float32)
 argsWithParenWithType -> %lparen _ arglistWithType:* _ %rparen
@@ -114,58 +113,20 @@ arglist -> param _ %comma:* _
 
 _ -> %space:*
 __ -> %space:+ 
-# _ -> %WS:*
-# __ -> %WS:+ 
-
-# main ->
-#     %comment %newline:* {% d => {console.log("comment: " + JSON.stringify(d[0])); return ({ type: "element", data: d[0]})} %}
-#   | main %newline %comment %newline:* {% d => {console.log("main elem: " + JSON.stringify(d)); return ({ type: "main_element", data: d})} %}
-
-# main ->
-#     element {% d => ({ type: "main_element", data: d}) %}
-#   | main %newline element {% appendItem(0, 2) %}
-#   | main %newline element {% d => ({ type: "main_element", data: d[2], main_data: d[0]}) %}
 
 
-# element -> %comment %newline:*
-# {% d => ({ type: "element", data: d[0]}) %}
-# {% d => returnAllData("element", d) %}
 
-# comment -> 
-# {% d => ({ type: "comment", data: d[0]}) %}
+# maybe later
 
-# class -> ("pub" _) "class"
-# class -> ("pub" _):? ("class" _)  %Identifier _ %lbrace _  %rbrace 
-# {% d => ({ type: "class", name: d[2], content: d[5] }) %}
+# const appendItem = (a: any, b: any): any => { 
+#     return (d: any) => { 
+#         console.log("append: " + JSON.stringify(d));
+#         // console.log("append d[a]: " + JSON.stringify(d[a]));
+#         return d[a].concat([d[b]]); 
+#     } 
+# };
+# main -> exprs  {% d => {return ({ type: "main", body: d[0]})} %}
 
-# # ifstatement -> %keyword %WS:* %lparen %WS:* %Identifier %WS:* %comparisonOperator %WS:* %Identifier %WS:*  %rparen {%
-# ifstatement -> "if" %WS:* %lparen logicalstatement  %rparen {%
-#     function(data) {
-#         return {
-#             type: "if",
-#             leftBracket:  data[1],
-#             statement: data[2],
-#             rightBracket: data[3]
-#         };
-#     }
-# %}
+# exprs -> expr | exprs __ expr {% appendItem(0,2) %}
 
-# logicalstatement -> %WS:* %Identifier %WS:* %comparisonOperator %WS:* %Identifier %WS:*{%
-#     function(data) {
-#         return {
-#             leftOperand:  data[1],
-#             operand: data[3],
-#             rightOperand: data[5]
-#         };
-#     }
-# %}
-
-
-# LineEnd -> null {% nullify %}
-#           | [^\n] LineEnd {% nullify %}
-
-# Use %token to match any token of that type instead of "token":
-#multiplication -> %number %ws %times %ws %number {% ([first, , , , second]) => first * second %}
-
-# Literal strings now match tokens with that text:
-#trig -> "sin" %number
+# expr -> expression | comment {% id %}

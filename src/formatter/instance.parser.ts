@@ -7,10 +7,10 @@ export function parseInstance(instance: any, tabSize: number, indentationLevel: 
 
     // console.log("instance: " + JSON.stringify(instance));
 
-    resultString += "instance " + getIdentifierName(instance.name);
+    resultString += "instance " + instance.name;
 
     if(instance.instanceTypeInfo !== undefined) {
-        resultString += "[" + instance.instanceTypeInfo.text + "]";
+        resultString += "[" + instance.instanceTypeInfo + "]";
     }
     
     resultString += " {\n";

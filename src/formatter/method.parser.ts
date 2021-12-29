@@ -4,8 +4,8 @@ function parseArgsWithParenWithType(args: [any]): string {
     let resultString = "";
     for(let i = 0; i < args.length; i++){
         let arg = args[i];
-        resultString += arg.param.text + ": ";
-        resultString += arg.paramType.text;
+        resultString += arg.param + ": ";
+        resultString += arg.paramType;
         if(i < args.length - 1) {
             resultString += ", ";
         }
@@ -18,7 +18,7 @@ function parseArgsWithParen(args: [any]): string {
     let resultString = "";
     for(let i = 0; i < args.length; i++){
         let arg = args[i];
-        resultString += arg.param.text;
+        resultString += arg.param;
         if(i < args.length - 1) {
             resultString += ", ";
         }
@@ -33,7 +33,7 @@ function parseShortMethodBody(body: any): string {
 
     // console.log("body: " + JSON.stringify(body));
 
-    resultString += body.name.text;
+    resultString += body.name;
 
     resultString += "(" + parseArgsWithParen(body.args.args) + ")";
 
@@ -45,15 +45,15 @@ export function parseMethod(methodBody: any, tabSize: number, indentationLevel: 
 
     resultString += getSpaces(tabSize, indentationLevel);
     
-    resultString += methodBody.pubdef.text + " ";
+    resultString += methodBody.pubdef + " ";
     
-    resultString += methodBody.name.text + "(";
+    resultString += methodBody.name + "(";
     if(methodBody.args !== undefined && methodBody.args.type === 'argsWithParenWithType') {
         resultString += parseArgsWithParenWithType(methodBody.args.args);
     }
     resultString += "): ";
 
-    resultString += methodBody.returnType.text;
+    resultString += methodBody.returnType;
 
     
     if(methodBody.body !== undefined && methodBody.body.type === 'shortMethodBody') {

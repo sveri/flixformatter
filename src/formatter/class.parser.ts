@@ -14,17 +14,17 @@ export function parseClass(clazz: any, tabSize: number, indentationLevel: number
 
     console.log("class: " + JSON.stringify(clazz));
 
-    resultString += "pub " + getLawless(clazz) + "class " + getIdentifierName(clazz.name);
+    resultString += "pub " + getLawless(clazz) + "class " + clazz.name;
 
     if(clazz.classTypeInfo !== undefined) {
-        resultString += "[" + clazz.classTypeInfo.text + "]";
+        resultString += "[" + clazz.classTypeInfo + "]";
     }
     
     resultString += " {\n";
     indentationLevel++;
 
-    for (const bodyElements of clazz.body as any) {
-        let bodyElement = bodyElements[0];
+    for (const bodyElement of clazz.body as any) {
+        // let bodyElement = bodyElements[0];
 
         if (bodyElement.type === 'comment') {
             resultString += withSpaces(bodyElement.text + "\n", tabSize, indentationLevel);

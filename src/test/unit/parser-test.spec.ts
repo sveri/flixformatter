@@ -8,11 +8,15 @@ describe('Indentation should remain the same for: ', () => {
         expect(parse(`//\n`, 4)).to.equal("//");
     });
     it(`file single line comments`, () => {
-        expect(parse("//asf\n", 4)).to.equal("//asf");
+        expect(parse("//asf foo\n", 4)).to.equal("//asf foo");
     });
     it(`file multiple single line comments`, () => {
-
-        expect(parse(`//\n//\r\n`, 4)).to.equal("//\n//");
+        expect(parse(`//\n//
+`, 4)).to.equal("//\n//");
+    });
+    it(`file three single line comments`, () => {
+        expect(parse(`//\n//\n//
+`, 4)).to.equal("//\n//\n//");
     });
 
 
@@ -83,6 +87,18 @@ pub lawless class Add[a] {
         (x \`concat\` y) as & Pure
 }`);
     });
+
+//     it(`instance with longer method `, () => {
+//         expect(parse(`instance Add[String] {
+//     pub def add(x: String, y: String): String =
+//         import java.lang.String.concat(String);
+//         (x \`concat\` y) as & Pure
+// }`, 4)).to.equal(`instance Add[String] {
+//     pub def add(x: String, y: String): String =
+//         import java.lang.String.concat(String);
+//         (x \`concat\` y) as & Pure
+// }`);
+//     });
 
 
 

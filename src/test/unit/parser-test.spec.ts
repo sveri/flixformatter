@@ -18,6 +18,11 @@ describe('Indentation should remain the same for: ', () => {
         expect(parse(`//\n//\n//
 `, 4)).to.equal("//\n//\n//");
     });
+    
+    it(`multiline comment on one line`, () => {
+        expect(parse(`/*  sdlfkj */\n
+`, 4)).to.equal("/*  sdlfkj */");
+    });
 
 
     it(`instance with pub def`, () => {
@@ -87,51 +92,5 @@ pub lawless class Add[a] {
         (x \`concat\` y) as & Pure
 }`);
     });
-
-//     it(`instance with longer method `, () => {
-//         expect(parse(`instance Add[String] {
-//     pub def add(x: String, y: String): String =
-//         import java.lang.String.concat(String);
-//         (x \`concat\` y) as & Pure
-// }`, 4)).to.equal(`instance Add[String] {
-//     pub def add(x: String, y: String): String =
-//         import java.lang.String.concat(String);
-//         (x \`concat\` y) as & Pure
-// }`);
-//     });
-
-
-
-
-
-
-
-
-
-
-    // it(`file multiple single line comments with instance inbetween`, () => {
-
-    //     expect(parse(`//\n//\r\ninstance foo {body}\n//\n`)).to.equal("//\n//\ninstance foo {\n\    body\n}\n//\n");
-    // });
-    // it(`file multiple single line comments`, () => {
-
-    //     expect(parse(`//\n//\n//`)).to.equal("//\n//");
-    //     // expect(parse("pub class Add { def main }")).to.equal("if (a < b)");
-    // });
-    // it(`file multiple single line windows LB comments`, () => {
-
-    //     expect(parse(`//\r\n//`)).to.equal("//\n//");
-    //     // expect(parse("pub class Add { def main }")).to.equal("if (a < b)");
-    // });
-    // it(`simple class`, () => {
-
-    //     expect(parse("pub class Add {}")).to.equal("pub class Add {\n}");
-    //     // expect(parse("pub class Add { def main }")).to.equal("if (a < b)");
-    // });
-    // it(`simple if condition`, () => {
-    //     expect(parse("if ( a < b)")).to.equal("if (a < b)");
-    //     expect(parse("if ( a < b )")).to.equal("if (a < b)");
-    //     expect(parse("if (a<b)")).to.equal("if (a < b)");
-    // });
 
 });

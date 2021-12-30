@@ -18,7 +18,7 @@ export function parseInstance(instance: any, tabSize: number, indentationLevel: 
 
     if(instance.body !== undefined && instance.body.type === 'method') {
 
-        resultString += parseMethod(instance.body, tabSize, indentationLevel) + "\n";
+        resultString += parseMethod(instance.body, tabSize, indentationLevel);
     }
 
     indentationLevel--;

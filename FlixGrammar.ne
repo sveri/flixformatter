@@ -37,6 +37,7 @@ main -> (expression | comment ):* {% d => {return ({ type: "main", body: flatten
 
 # comment -> [\s]:* "//" [ \w/\.\`]:* [\n] {% d => {console.log("comment " + JSON.stringify(d[1] + d[2].join(""))); return ({type: "comment", text: d[1] + d[2].join("")})} %}
 comment -> _ "//" [ \w/\.\`]:* [\n] {% d => {return ({type: "comment", text: d[1] + d[2].join("")})} %}
+	| _ "/*"  [ \w/\.\`\n]:*  "*/" {% d => {return ({type: "multiLine", text: d[2].join("")})} %}
 
 expression -> instance {% id %}
     | class {% id %}
@@ -53,15 +54,16 @@ class -> pub __ lawless "class" __  identifier lbracket identifier rbracket __ l
 
 lawless -> ("lawless" __):* {% d => {if(d[0][0] === undefined) return {lawless: false}; else return {lawless: true};} %}
 
-classBody -> (comment | method):* {% d => {console.log("classBody: " + JSON.stringify(flatten(d[0]))); return flatten(d[0])} %}
-# classBody -> (comment | method):* {% id %}
+# classBody -> (comment | method):* {% d => {console.log("classBody: " + JSON.stringify(flatten(d[0]))); return flatten(d[0])} %}
+classBody -> (comment | method):* {% d => {return flatten(d[0])} %}
 
             # pub def add(x: a, y: a): a
 method -> _ pubdef __ identifier _ argsWithParenWithType _ colon _ returnType
     {% d => {return { type: "methodDeclaration", pubdef: d[1], name: d[3], args: d[5], returnType: d[9]}} %}
     # pub def add(x: Float64, y: Float64): Float64 = $FLOAT64_ADD$(x, y)
     | _ pubdef __ identifier _ argsWithParenWithType _ colon _ returnType _ assignement _ methodBody _ 
-    {% d => {return { type: "method", pubdef: d[1], name: d[3], args: d[5], returnType: d[9], body: d[13]}} %}
+    # {% d => {return { type: "method", pubdef: d[1], name: d[3], args: d[5], returnType: d[9], body: d[13]}} %}
+    {% d => {return { type: "method", pubdef: d[1], name: d[3], args: d[5], returnType: d[9], body: flatten(d[13])}} %}
 
     
 
@@ -79,7 +81,8 @@ methodBody -> shortMethodBody {% id %} | longMethodBody {% id %}
 
 # = $FLOAT32_ADD$(x, y)
 shortMethodBody -> identifier argsWithParen
-{% d => ({ type: "shortMethodBody", name: d[0], args: d[1]}) %}
+# {% d => ({ type: "shortMethodBody", name: d[0], args: d[1]}) %}
+{% d => ([{ type: "shortMethodBody", name: d[0], args: d[1]}]) %}
 # (x, y)
 argsWithParen -> lparen _ arglist:* _ rparen
 {% d => ({ type: "argsWithParen", args: d[2]}) %}
@@ -87,15 +90,18 @@ arglist -> param _ comma:* _
 {% d => ({ type: "arglist", param: d[0]}) %}
 
 
-longMethodBody -> (import | methodLine):+
+longMethodBody -> (import | methodLine):+ {% id %}
 
-import -> _ ("import" __) identifier ("." identifier):* lparen identifier rparen ";"
-# methodLine -> _ %methodLine
+import -> _ ("import" __) identifier ("." identifier):* lparen identifier rparen ";" 
+{% d => {return { type: "javaImport", identifierOne: d[2], identifier: flatten(d[3]), parenIdentifier: d[5]}} %}
+
+methodLine -> _  [ \w/\.\`\(\)&]:*  "\n" 
+{% d => {return { type: "methodLine", line: d[1].join("").trim()}} %}
 
 
 
 pub -> "pub" {% d => {return d[0]} %}
-pubdef -> "pub def" | "def" {% d => {return d[0]} %}
+pubdef -> "pub def" | "def" {% d => {return d[0].join("")} %}
 identifier -> [a-zA-Z0-9$_]:+  {% d => {return d[0].join("")} %}
 # identifier -> [\w$.*]:+
 lparen -> "("

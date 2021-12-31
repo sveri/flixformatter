@@ -20,8 +20,7 @@ describe('Indentation should remain the same for: ', () => {
     });
     
     it(`multiline comment on one line`, () => {
-        expect(parse(`/*  sdlfkj */\n
-`, 4)).to.equal("/*  sdlfkj */");
+        expect(parse(`/*  sdlfkj */\n`, 4)).to.equal("/*  sdlfkj */");
     });
 
 

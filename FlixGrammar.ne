@@ -31,13 +31,23 @@ function flatten<T>(arr: T[][]): T[] {
 }
 %}
 
+# main -> (expression | comment ):* {% d => {return ({ type: "main", body: flatten(d[0])})} %}
+# main -> (expression | comment ):* {% d => {console.log("maein: " + JSON.stringify(flatten(d[0]))); return ({ type: "main", body: flatten(d[0])})} %}
 main -> (expression | comment ):* {% d => {return ({ type: "main", body: flatten(d[0])})} %}
-# main -> (expression | comment ):* {% d => {console.log(JSON.stringify(d)); return ({ type: "main", body: flatten(d[0])})} %}
 
 
 # comment -> [\s]:* "//" [ \w/\.\`]:* [\n] {% d => {console.log("comment " + JSON.stringify(d[1] + d[2].join(""))); return ({type: "comment", text: d[1] + d[2].join("")})} %}
-comment -> _ "//" [ \w/\.\`]:* [\n] {% d => {return ({type: "comment", text: d[1] + d[2].join("")})} %}
-	| _ "/*"  [ \w/\.\`\n]:*  "*/" {% d => {return ({type: "multiLine", text: d[2].join("")})} %}
+# comment -> _ "//" [ \w/\.\`]:* [\n] {% d => {return ({type: "comment", text: d[1] + d[2].join("")})} %}
+# 	| _ "/*"  [ \w/\.\`\n]:*  "*/" {% d => {return ({type: "multiLine", text: d[2].join("")})} %}
+
+comment -> singleLineComment {% id %}
+	| multiLineComment {% id %}
+
+singleLineComment ->  _ "//" [ \w/\.\`]:* [\n] {% d => {return ({type: "comment", text: d[1] + d[2].join("")})} %}
+# multiLine -> _ "dd"  [ \w/\.\`]:* "dd"
+multiLineComment -> _ "/*" [ \w/\.\`]:* "*/" _
+ {% d => {return ({type: "multiLineComment", text: d[2].join("")})} %}
+#  {% d => {console.log("multiLine " + JSON.stringify(({type: "multiLine", text: d[2]}))); return ({type: "multiLineComment", text: d[2].join("")})} %}
 
 expression -> instance {% id %}
     | class {% id %}
@@ -61,11 +71,11 @@ classBody -> (comment | method):* {% d => {return flatten(d[0])} %}
 method -> _ pubdef __ identifier _ argsWithParenWithType _ colon _ returnType
     {% d => {return { type: "methodDeclaration", pubdef: d[1], name: d[3], args: d[5], returnType: d[9]}} %}
     # pub def add(x: Float64, y: Float64): Float64 = $FLOAT64_ADD$(x, y)
-    | _ pubdef __ identifier _ argsWithParenWithType _ colon _ returnType _ assignement _ methodBody _ 
+    | _ pubdef __ identifier _ argsWithParenWithType _ colon _ returnType _ assignement _ methodBody _
     # {% d => {return { type: "method", pubdef: d[1], name: d[3], args: d[5], returnType: d[9], body: d[13]}} %}
     {% d => {return { type: "method", pubdef: d[1], name: d[3], args: d[5], returnType: d[9], body: flatten(d[13])}} %}
 
-    
+
 
 # (x: Float32, y: Float32)
 argsWithParenWithType -> lparen _ arglistWithType:* _ rparen
@@ -92,10 +102,10 @@ arglist -> param _ comma:* _
 
 longMethodBody -> (import | methodLine):+ {% id %}
 
-import -> _ ("import" __) identifier ("." identifier):* lparen identifier rparen ";" 
+import -> _ ("import" __) identifier ("." identifier):* lparen identifier rparen ";"
 {% d => {return { type: "javaImport", identifierOne: d[2], identifier: flatten(d[3]), parenIdentifier: d[5]}} %}
 
-methodLine -> _  [ \w/\.\`\(\)&]:*  "\n" 
+methodLine -> _  [ \w/\.\`\(\)&]:*  "\n"
 {% d => {return { type: "methodLine", line: d[1].join("").trim()}} %}
 
 
@@ -114,19 +124,19 @@ colon -> ":"
 comma -> ","
 assignement -> "="
 _ -> [\s\n]:*
-__ -> [\s]:+ 
+__ -> [\s]:+
 
 
 
 # maybe later
 
 
-# const appendItem = (a: any, b: any): any => { 
-#     return (d: any) => { 
+# const appendItem = (a: any, b: any): any => {
+#     return (d: any) => {
 #         console.log("append: " + JSON.stringify(d));
 #         // console.log("append d[a]: " + JSON.stringify(d[a]));
-#         return d[a].concat([d[b]]); 
-#     } 
+#         return d[a].concat([d[b]]);
+#     }
 # };
 # main -> exprs  {% d => {return ({ type: "main", body: d[0]})} %}
 

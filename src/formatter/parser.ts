@@ -23,6 +23,8 @@ function parseResult(results: any, tabSize: number): string {
                 // for (const bodyArray of body as any) {
                     if (bodyArray.type === 'comment') {
                         resultString += bodyArray.text + "\n";
+                    } else if ( bodyArray.type === 'multiLineComment') {
+                        resultString += "/*" + bodyArray.text + "*/\n";
                     } else if (bodyArray.type === 'instance') {
                         resultString += parseInstance(bodyArray, tabSize, indentationLevel) + "\n\n";
                     } else if (bodyArray.type === 'class') {
@@ -39,10 +41,11 @@ function parseResult(results: any, tabSize: number): string {
 
 
 export function parse(s: string, tabSize: number) {
+    // console.log("toParse: " + JSON.stringify(s));
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(myGrammar));
     let parsedText = parser.feed(s).results;
-
-    // console.log(JSON.stringify(parsedText));
+    
+    // console.log("parsedText " + JSON.stringify(parsedText));
 
     return parseResult(parsedText[0], tabSize);
 }

@@ -83,7 +83,7 @@ const grammar: Grammar = {
     {"name": "instance", "symbols": ["instance$string$1", "__", "identifier", "lbracket", "identifier", "rbracket", "_", "lbrace", "_", "instanceBody", "rbrace", "_"], "postprocess": d => {return { type: "instance", name: d[2], instanceTypeInfo: d[4], body: d[9]}}},
     {"name": "instanceBody", "symbols": ["method"], "postprocess": id},
     {"name": "class$string$1", "symbols": [{"literal":"c"}, {"literal":"l"}, {"literal":"a"}, {"literal":"s"}, {"literal":"s"}], "postprocess": (d) => d.join('')},
-    {"name": "class", "symbols": ["pub", "__", "lawless", "class$string$1", "__", "identifier", "lbracket", "identifier", "rbracket", "__", "lbrace", "_", "classBody", "_", "rbrace"], "postprocess": d => { return { type: "class", lawless: d[2], name: d[5], classTypeInfo: d[7], body: d[12]}}},
+    {"name": "class", "symbols": ["pub", "__", "lawless", "class$string$1", "__", "identifier", "lbracket", "identifier", "rbracket", "__", "lbrace", "_", "classBody", "_", "rbrace", "_"], "postprocess": d => { return { type: "class", lawless: d[2], name: d[5], classTypeInfo: d[7], body: d[12]}}},
     {"name": "lawless$ebnf$1", "symbols": []},
     {"name": "lawless$ebnf$1$subexpression$1$string$1", "symbols": [{"literal":"l"}, {"literal":"a"}, {"literal":"w"}, {"literal":"l"}, {"literal":"e"}, {"literal":"s"}, {"literal":"s"}], "postprocess": (d) => d.join('')},
     {"name": "lawless$ebnf$1$subexpression$1", "symbols": ["lawless$ebnf$1$subexpression$1$string$1", "__"]},

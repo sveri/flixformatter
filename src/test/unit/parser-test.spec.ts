@@ -124,4 +124,28 @@ pub lawless class Add[a] {
 }`);
     });
 
+    it(`comment, lawless class and `, () => {
+        expect(parse(`///
+pub lawless class Add[a] {
+    ///
+    /// Returns the sum of \`x\` and \`y\`.
+    ///
+    pub def add(x: a, y: a): a
+}
+
+instance Add[Float32] {
+    pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)
+}`, 4)).to.equal(`///
+pub lawless class Add[a] {
+    ///
+    /// Returns the sum of \`x\` and \`y\`.
+    ///
+    pub def add(x: a, y: a): a
+}
+
+instance Add[Float32] {
+    pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)
+}`);
+    });
+
 });

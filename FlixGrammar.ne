@@ -59,7 +59,7 @@ instance -> "instance" __ identifier lbracket identifier rbracket _ lbrace _ ins
 instanceBody -> method {% id %}
 
 # class
-class -> pub __ lawless "class" __  identifier lbracket identifier rbracket __ lbrace _ classBody _ rbrace
+class -> pub __ lawless "class" __  identifier lbracket identifier rbracket __ lbrace _ classBody _ rbrace _
 {% d => { return { type: "class", lawless: d[2], name: d[5], classTypeInfo: d[7], body: d[12]}} %}
 
 lawless -> ("lawless" __):* {% d => {if(d[0][0] === undefined) return {lawless: false}; else return {lawless: true};} %}

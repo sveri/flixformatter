@@ -31,23 +31,14 @@ function flatten<T>(arr: T[][]): T[] {
 }
 %}
 
-# main -> (expression | comment ):* {% d => {return ({ type: "main", body: flatten(d[0])})} %}
-# main -> (expression | comment ):* {% d => {console.log("maein: " + JSON.stringify(flatten(d[0]))); return ({ type: "main", body: flatten(d[0])})} %}
 main -> (expression | comment ):* {% d => {return ({ type: "main", body: flatten(d[0])})} %}
-
-
-# comment -> [\s]:* "//" [ \w/\.\`]:* [\n] {% d => {console.log("comment " + JSON.stringify(d[1] + d[2].join(""))); return ({type: "comment", text: d[1] + d[2].join("")})} %}
-# comment -> _ "//" [ \w/\.\`]:* [\n] {% d => {return ({type: "comment", text: d[1] + d[2].join("")})} %}
-# 	| _ "/*"  [ \w/\.\`\n]:*  "*/" {% d => {return ({type: "multiLine", text: d[2].join("")})} %}
 
 comment -> singleLineComment {% id %}
 	| multiLineComment {% id %}
 
 singleLineComment ->  _ "//" [ \(\),\*\w/\.\`\";:\-_]:* [\n] {% d => {return ({type: "comment", text: d[1] + d[2].join("")})} %}
-# multiLine -> _ "dd"  [ \w/\.\`]:* "dd"
 multiLineComment -> _ "/*" [ \(\),\*\w/\.\`\";:\-_\n]:* "*/" _
  {% d => {return ({type: "multiLineComment", text: d[2].join("")})} %}
-#  {% d => {console.log("multiLine " + JSON.stringify(({type: "multiLine", text: d[2]}))); return ({type: "multiLineComment", text: d[2].join("")})} %}
 
 expression -> instance {% id %}
     | class {% id %}
@@ -70,9 +61,7 @@ classBody -> (comment | method):* {% d => {return flatten(d[0])} %}
             # pub def add(x: a, y: a): a
 method -> _ pubdef __ identifier _ argsWithParenWithType _ colon _ returnType
     {% d => {return { type: "methodDeclaration", pubdef: d[1], name: d[3], args: d[5], returnType: d[9]}} %}
-    # pub def add(x: Float64, y: Float64): Float64 = $FLOAT64_ADD$(x, y)
     | _ pubdef __ identifier _ argsWithParenWithType _ colon _ returnType _ assignement _ methodBody _
-    # {% d => {return { type: "method", pubdef: d[1], name: d[3], args: d[5], returnType: d[9], body: d[13]}} %}
     {% d => {return { type: "method", pubdef: d[1], name: d[3], args: d[5], returnType: d[9], body: flatten(d[13])}} %}
 
 

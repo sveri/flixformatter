@@ -22,6 +22,22 @@ describe('Indentation should remain the same for: ', () => {
     it(`multiline comment on one line`, () => {
         expect(parse(`/*  sdlfkj */\n`, 4)).to.equal("/*  sdlfkj */");
     });
+    
+    it(`multiline comment on two lines`, () => {
+        expect(parse(`/*  sdlfkj
+foobar */\n`, 4)).to.equal(`/*  sdlfkj
+foobar */`);
+    });
+    
+    it(`multiline comment on four lines`, () => {
+        expect(parse(`/*  
+        sdlfkj
+foobar 
+  */\n`, 4)).to.equal(`/*  
+        sdlfkj
+foobar 
+  */`);
+    });
 
 
     it(`instance with pub def`, () => {

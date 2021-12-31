@@ -74,7 +74,7 @@ const grammar: Grammar = {
     {"name": "singleLineComment", "symbols": ["_", "singleLineComment$string$1", "singleLineComment$ebnf$1", /[\n]/], "postprocess": d => {return ({type: "comment", text: d[1] + d[2].join("")})}},
     {"name": "multiLineComment$string$1", "symbols": [{"literal":"/"}, {"literal":"*"}], "postprocess": (d) => d.join('')},
     {"name": "multiLineComment$ebnf$1", "symbols": []},
-    {"name": "multiLineComment$ebnf$1", "symbols": ["multiLineComment$ebnf$1", /[ \w/\.\`]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "multiLineComment$ebnf$1", "symbols": ["multiLineComment$ebnf$1", /[ \w/\.\`\n]/], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "multiLineComment$string$2", "symbols": [{"literal":"*"}, {"literal":"/"}], "postprocess": (d) => d.join('')},
     {"name": "multiLineComment", "symbols": ["_", "multiLineComment$string$1", "multiLineComment$ebnf$1", "multiLineComment$string$2", "_"], "postprocess": d => {return ({type: "multiLineComment", text: d[2].join("")})}},
     {"name": "expression", "symbols": ["instance"], "postprocess": id},

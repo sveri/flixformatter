@@ -45,7 +45,7 @@ comment -> singleLineComment {% id %}
 
 singleLineComment ->  _ "//" [ \w/\.\`]:* [\n] {% d => {return ({type: "comment", text: d[1] + d[2].join("")})} %}
 # multiLine -> _ "dd"  [ \w/\.\`]:* "dd"
-multiLineComment -> _ "/*" [ \w/\.\`]:* "*/" _
+multiLineComment -> _ "/*" [ \w/\.\`\n]:* "*/" _
  {% d => {return ({type: "multiLineComment", text: d[2].join("")})} %}
 #  {% d => {console.log("multiLine " + JSON.stringify(({type: "multiLine", text: d[2]}))); return ({type: "multiLineComment", text: d[2].join("")})} %}
 

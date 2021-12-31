@@ -43,9 +43,9 @@ main -> (expression | comment ):* {% d => {return ({ type: "main", body: flatten
 comment -> singleLineComment {% id %}
 	| multiLineComment {% id %}
 
-singleLineComment ->  _ "//" [ \w/\.\`]:* [\n] {% d => {return ({type: "comment", text: d[1] + d[2].join("")})} %}
+singleLineComment ->  _ "//" [ \(\),\*\w/\.\`\";:\-_]:* [\n] {% d => {return ({type: "comment", text: d[1] + d[2].join("")})} %}
 # multiLine -> _ "dd"  [ \w/\.\`]:* "dd"
-multiLineComment -> _ "/*" [ \w/\.\`\n]:* "*/" _
+multiLineComment -> _ "/*" [ \(\),\*\w/\.\`\";:\-_\n]:* "*/" _
  {% d => {return ({type: "multiLineComment", text: d[2].join("")})} %}
 #  {% d => {console.log("multiLine " + JSON.stringify(({type: "multiLine", text: d[2]}))); return ({type: "multiLineComment", text: d[2].join("")})} %}
 

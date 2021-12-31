@@ -38,6 +38,22 @@ foobar
 foobar 
   */`);
     });
+    
+    it(`single and multiline comment together`, () => {
+        expect(parse(`// foo
+// bar
+/*  
+        sdlfkj
+foobar 
+  */
+// baz\n`, 4)).to.equal(`// foo
+// bar
+/*  
+        sdlfkj
+foobar 
+  */
+// baz`);
+    });
 
 
     it(`instance with pub def`, () => {

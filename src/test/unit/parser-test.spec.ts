@@ -3,11 +3,14 @@ import { parse } from '../../formatter/parser';
 
 
 describe('Indentation should remain the same for: ', () => {
-    it(`one singleline comment`, () => {
+    it(`one single line comment`, () => {
 
         expect(parse(`//\n`, 4)).to.equal("//");
     });
-    it(`file single line comments`, () => {
+    it(`single line commens with one word`, () => {
+        expect(parse("//asffoo\r\n", 4)).to.equal("//asffoo");
+    });
+    it(`single line comment with spaced text`, () => {
         expect(parse("//asf foo\n", 4)).to.equal("//asf foo");
     });
     it(`file multiple single line comments`, () => {

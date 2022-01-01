@@ -32,10 +32,10 @@
 		"pretest": "npm run nearley && npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",
 		"test": "node ./out/test/runTest.js",
-		"pretest:unit": "npm run nearley",
 		"test:unit": "mocha -r ts-node/register src/test/unit/**/*.spec.ts"
 	},
 	"devDependencies": {
+		"@chevrotain/types": "^9.1.0",
 		"@types/chai": "^4.3.0",
 		"@types/glob": "^7.1.4",
 		"@types/mocha": "^9.0.0",
@@ -55,6 +55,7 @@
 	"dependencies": {
 		"@types/moo": "^0.5.5",
 		"@types/nearley": "^2.11.2",
+		"chevrotain": "^9.1.0",
 		"moo": "^0.5.1",
 		"nearley": "^2.20.1"
 	}

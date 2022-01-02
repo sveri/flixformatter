@@ -30,6 +30,7 @@ const SingleComment = createToken({
   // pattern: /\/\/(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\n\r/
 });
 
+// $FLOAT32_ADD$
 const ReferenceMethodCall = createToken({
   name: "ReferenceMethodCall",
   pattern: /\$(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\$/
@@ -75,7 +76,7 @@ class FlixParser extends EmbeddedActionsParser {
     let result = "";
     this.OR([
       { ALT: () => result += this.SUBRULE(this.singleLineComment) },
-      { ALT: () => result += this.SUBRULE(this.instace) },
+      { ALT: () => result += this.SUBRULE(this.instance) },
     ]);
 
     return result;
@@ -86,9 +87,8 @@ class FlixParser extends EmbeddedActionsParser {
     return r.image;
   });
 
-  private instace = this.RULE("instance", () => {
+  private instance = this.RULE("instance", () => {
     this.CONSUME(Instance);
-    // this.CONSUME(WhiteSpace);
     let identifier = this.CONSUME(Identifier);
     let instanceType = this.SUBRULE(this.singleBracketWithType);
     this.CONSUME(LCurly);
@@ -96,13 +96,13 @@ class FlixParser extends EmbeddedActionsParser {
     let instanceBody = this.SUBRULE(this.instanceBody);
     this.indentationLevel--;
     this.CONSUME(RCurly);
-    return "instance " + identifier.image + instanceType + " {\n" + instanceBody + "\n}";
+    return "instance " + identifier.image + instanceType + " {\n" + instanceBody + "\n}asfsadf";
   });
 
   private instanceBody = this.RULE("instanceBody", () => {
     let result = "";
     this.OR([
-      { ALT: () => result += this.SUBRULE(this.method) },
+      { ALT: () => result +=  this.SUBRULE(this.method) },
     ]);
 
     return result;
@@ -124,7 +124,7 @@ class FlixParser extends EmbeddedActionsParser {
     this.CONSUME(Assignment);
     let methodBody = this.SUBRULE(this.methodBody);
 
-    return this.getIndentation() + pubDef.image + " " + methodName.image + "(" + argumentsWithType.join(", ") + ")"
+    return this.getIndentation() + "-----------------------------" + pubDef.image + " " + methodName.image + "(" + argumentsWithType.join(", ") + ")"
       + returnType + " = " + methodBody;
   });
 
@@ -202,28 +202,8 @@ export function parse(s: string, tabSize: number) {
   }
 
   let parsedResult = parser.flix();
-  console.log("parsedResult: " + JSON.stringify(parsedResult));
+  console.log("parsedResultttt: " + JSON.stringify(parsedResult));
 
   return parsedResult;
 }
 
-
-
-// const StringLiteral = createToken({
-//   name: "StringLiteral",
-//   pattern: /"(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/
-// });
-// const NumberLiteral = createToken({
-//   name: "NumberLiteral",
-//   pattern: /-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?/
-// });
-// const NewLine = createToken({
-//   name: "WhiteSpace",
-//   pattern: /[\n\r]+/,
-//   group: Lexer.SKIPPED
-// });
-// const whiteSpace = createToken({
-//   name: "WhiteSpace",
-//   pattern: /[ \t]+/,
-//   group: Lexer.SKIPPED
-// });

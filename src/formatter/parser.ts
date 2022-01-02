@@ -21,13 +21,18 @@ const Assignment = createToken({ name: "Assignment", pattern: /=/ });
 const Instance = createToken({ name: "Instance", pattern: /instance/ });
 const PubDef = createToken({ name: "PubDef", pattern: /pub def/ });
 const Pub = createToken({ name: "Pub", pattern: /pub / });
-const Identifier = createToken({ name: "Identifier", pattern: /[a-zA-Z$]\w*/ });
+const Identifier = createToken({ name: "Identifier", pattern: /[a-zA-Z]\w*/ });
 
 
 const SingleComment = createToken({
   name: "singleComment",
   pattern: /\/\/(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\n|\r/
   // pattern: /\/\/(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\n\r/
+});
+
+const ReferenceMethodCall = createToken({
+  name: "ReferenceMethodCall",
+  pattern: /\$(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\$/
 });
 
 const WhiteSpace = createToken({
@@ -46,6 +51,7 @@ const allTokens = [
   LSquare, RSquare,
   Comma, Colon,
   Assignment,
+  ReferenceMethodCall,
 
   Identifier,
 ];
@@ -71,15 +77,15 @@ class FlixParser extends EmbeddedActionsParser {
       { ALT: () => result += this.SUBRULE(this.singleLineComment) },
       { ALT: () => result += this.SUBRULE(this.instace) },
     ]);
-    
+
     return result;
   });
-  
+
   private singleLineComment = this.RULE("singleLineComment", () => {
     const r = this.CONSUME(SingleComment);
     return r.image;
   });
-  
+
   private instace = this.RULE("instance", () => {
     this.CONSUME(Instance);
     // this.CONSUME(WhiteSpace);
@@ -92,45 +98,86 @@ class FlixParser extends EmbeddedActionsParser {
     this.CONSUME(RCurly);
     return "instance " + identifier.image + instanceType + " {\n" + instanceBody + "\n}";
   });
-  
+
   private instanceBody = this.RULE("instanceBody", () => {
-    // let result = "";    
-    // const pubDef = this.CONSUME(PubDef);
-    
-    // return pubDef.image;
     let result = "";
     this.OR([
-      { ALT: () => result += this.SUBRULE(this.method)},
-      // { ALT: () => result += this.SUBRULE(this.instace) },
+      { ALT: () => result += this.SUBRULE(this.method) },
     ]);
-    
+
     return result;
   });
-  
+
   private method = this.RULE("method", () => {
-    let result = "";    
     const pubDef = this.CONSUME(PubDef);
     const methodName = this.CONSUME(Identifier);
-    this.CONSUME(LParen);
-    // let argumentsWithType = this.SUBRULE(this.argumentsWithType);
-    this.CONSUME(RParen);
-
-    // this.OR([
-    //   { ALT: () => result += this.SUBRULE(this.singleLineComment) },
-    //   { ALT: () => result += this.SUBRULE(this.instace) },
-    // ]);
     
-    return this.getIndentation() + pubDef.image + " " + methodName.image + "(" + ")";
-    // return this.getIndentation() + pubDef.image + " " + methodName.image + "(" + argumentsWithType + ")";
+    let argumentsWithType: any[] = [];
+    this.CONSUME(LParen);
+    this.MANY_SEP({
+      SEP: Comma, DEF: () => {
+        argumentsWithType.push(this.SUBRULE(this.argumentsWithType));
+      }
+    });
+    this.CONSUME(RParen);
+    let returnType = this.SUBRULE(this.methodReturnType);
+    this.CONSUME(Assignment);
+    let methodBody = this.SUBRULE(this.methodBody);
+
+    return this.getIndentation() + pubDef.image + " " + methodName.image + "(" + argumentsWithType.join(", ") + ")"
+      + returnType + " = " + methodBody;
   });
-  
-  // private argumentsWithType = this.RULE("argumentsWithType", () => {
-  //   let param = this.CONSUME(Identifier);
-  //   this.CONSUME(Colon);
-  //   let paramType = this.CONSUME(Identifier);
-  //   return param.image + ":" + paramType.image;
-  // });
-  
+
+  private type = this.RULE("type", () => {
+    let type = this.CONSUME(Identifier);
+    return type.image;
+  });
+
+  private methodReturnType = this.RULE("methodReturnType", () => {
+    this.CONSUME(Colon);
+    let type = this.CONSUME(Identifier);
+    return ": " + type.image;
+  });
+
+  private methodBody = this.RULE("methodBody", () => {
+    let result = "";
+    this.OR([
+      { ALT: () => result += this.SUBRULE(this.referenceMethodCall) },
+    ]);
+
+    return result;
+  });
+
+  // $FLOAT32_ADD$(x, y)
+  private referenceMethodCall = this.RULE("referenceMethodCall", () => {
+    let call = this.CONSUME(ReferenceMethodCall);
+
+    let argumentsWithoutType: any[] = [];
+    this.CONSUME(LParen);
+    this.MANY_SEP({
+      SEP: Comma, DEF: () => {
+        argumentsWithoutType.push(this.SUBRULE(this.argumentsWithouthType));
+      }
+    });
+    this.CONSUME(RParen);
+    
+    return call.image + "(" + argumentsWithoutType.join(", ") + ")";
+  });
+
+  // (x: Float32, y: Float32)
+  private argumentsWithType = this.RULE("argumentsWithType", () => {
+    let param = this.CONSUME(Identifier);
+    this.CONSUME(Colon);
+    let paramType = this.SUBRULE(this.type);
+    return param.image + ": " + paramType;
+  });
+
+  // (x, y)
+  private argumentsWithouthType = this.RULE("argumentsWithouthType", () => {
+    let param = this.CONSUME(Identifier);
+    return param.image;
+  });
+
   private singleBracketWithType = this.RULE("singleBracketType", () => {
     this.CONSUME(LSquare);
     let instanceType = this.CONSUME(Identifier);
@@ -142,21 +189,21 @@ class FlixParser extends EmbeddedActionsParser {
 const parser = new FlixParser();
 
 export function parse(s: string, tabSize: number) {
-  
+
   const lexResult = jsonLexer.tokenize(s);
-  
-  if(lexResult.errors !== undefined && lexResult.errors.length > 0) {
+
+  if (lexResult.errors !== undefined && lexResult.errors.length > 0) {
     console.log("lexer errors: " + JSON.stringify(lexResult.errors));
   }
-  
+
   parser.input = lexResult.tokens;
-  if(parser.errors !== undefined && parser.errors.length > 0) {
+  if (parser.errors !== undefined && parser.errors.length > 0) {
     console.log("parser errors: " + JSON.stringify(parser.errors));
   }
-  
+
   let parsedResult = parser.flix();
   console.log("parsedResult: " + JSON.stringify(parsedResult));
-  
+
   return parsedResult;
 }
 

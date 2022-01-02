@@ -59,13 +59,21 @@ foobar
     });
 
 
-    it(`instance with pub def`, () => {
+    it(`single instance with pub def`, () => {
         expect(parse(`instance Add[Float32] {
-    pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)
+    pub def add()
 }`, 4)).to.equal(`instance Add[Float32] {
     pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)
 }`);
     });
+
+//     it(`single instance with pub def`, () => {
+//         expect(parse(`instance Add[Float32] {
+//     pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)
+// }`, 4)).to.equal(`instance Add[Float32] {
+//     pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)
+// }`);
+//     });
 
     it(`instance with pub def and comments`, () => {
         expect(parse(`// foo

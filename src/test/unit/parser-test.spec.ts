@@ -5,23 +5,23 @@ import { parse } from '../../formatter/parser';
 describe('Indentation should remain the same for: ', () => {
     it(`one single line comment`, () => {
 
-        expect(parse(`//\n`, 4)).to.equal("//\n");
+        expect(parse(`//\n`, 4)).to.equal("//");
     });
     it(`one nonempty single line comment`, () => {
 
-        expect(parse(`//foo\n`, 4)).to.equal("//foo\n");
+        expect(parse(`//foo\n`, 4)).to.equal("//foo");
     });
     it(`single line commens with one word`, () => {
-        expect(parse("//asffoo\r\n", 4)).to.equal("//asffoo\n");
+        expect(parse("//asffoo\r\n", 4)).to.equal("//asffoo");
     });
     it(`single line comment with spaced text`, () => {
-        expect(parse("//asf foo\n", 4)).to.equal("//asf foo\n");
+        expect(parse("//asf foo\n", 4)).to.equal("//asf foo");
     });
-    it(`file multiple single line comments`, () => {
-        expect(parse(`//\n//\n`, 4)).to.equal("//\n//\n");
+    it(`multiple single line comments`, () => {
+        expect(parse(`//\n//\n`, 4)).to.equal("//\n//");
     });
-    it(`file three single line comments`, () => {
-        expect(parse(`//\n//\n//\n`, 4)).to.equal("//\n//\n//\n");
+    it(`three single line comments`, () => {
+        expect(parse(`//\n//\n//\n`, 4)).to.equal("//\n//\n//");
     });
     
     it(`multiline comment on one line`, () => {
@@ -30,32 +30,45 @@ describe('Indentation should remain the same for: ', () => {
     
     it(`multiline comment on two lines`, () => {
         expect(parse(`/*  sdlfkj
-foobar */\n`, 4)).to.equal(`/*  sdlfkj
-foobar */`);
+* foobar */\n`, 4)).to.equal(`/*  sdlfkj
+* foobar */`);
     });
     
     it(`multiline comment on four lines`, () => {
         expect(parse(`/*  
-        sdlfkj
-foobar 
+ *        sdlfkj
+ * sbaz
   */\n`, 4)).to.equal(`/*  
-        sdlfkj
-foobar 
-  */`);
+ *        sdlfkj
+ * sbaz
+  */`);});
+    
+    it(`two multiline comments`, () => {
+        expect(parse(`/*  
+ * foobar 
+  */
+/*  
+* foobar 
+    */\n`, 4)).to.equal(`/*  
+ * foobar 
+  */
+/*  
+* foobar 
+    */`);
     });
     
     it(`single and multiline comment together`, () => {
         expect(parse(`// foo
 // bar
 /*  
-        sdlfkj
-foobar 
+ *        sdlfkj
+ * foobar 
   */
 // baz\n`, 4)).to.equal(`// foo
 // bar
 /*  
-        sdlfkj
-foobar 
+ *        sdlfkj
+ * foobar 
   */
 // baz`);
     });

@@ -127,7 +127,7 @@ class FlixParser extends EmbeddedActionsParser {
     let instanceBody = this.SUBRULE(this.instanceBody);
     this.indentationLevel--;
     this.CONSUME(RCurly);
-    return "instance " + identifier.image + instanceType + " {\n" + instanceBody + "\n}asfsadf";
+    return "instance " + identifier.image + instanceType + " {\n" + instanceBody + "\n}";
   });
 
   private instanceBody = this.RULE("instanceBody", () => {
@@ -155,7 +155,7 @@ class FlixParser extends EmbeddedActionsParser {
     this.CONSUME(Assignment);
     let methodBody = this.SUBRULE(this.methodBody);
 
-    return this.getIndentation() + "-----------------------------" + pubDef.image + " " + methodName.image + "(" + argumentsWithType.join(", ") + ")"
+    return this.getIndentation() + pubDef.image + " " + methodName.image + "(" + argumentsWithType.join(", ") + ")"
       + returnType + " = " + methodBody;
   });
 

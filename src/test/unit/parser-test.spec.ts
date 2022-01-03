@@ -3,6 +3,10 @@ import { parse } from '../../formatter/parser';
 
 
 describe('Indentation should remain the same for: ', () => {
+    it(`bracket with type`, () => {
+
+        expect(parse(`[Float32]`, 4)).to.equal("[Float32]");
+    });
     it(`one single line comment`, () => {
 
         expect(parse(`//\n`, 4)).to.equal("//");
@@ -92,7 +96,7 @@ instance Add[Float32] {
 }`);
     });
     
-    it(`twos instance with pub def`, () => {
+    it(`two instances with pub def`, () => {
         expect(parse(`instance Add[Float32] {
     pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)
 }

@@ -12,12 +12,23 @@ import {
 } from "chevrotain";
 import { resourceLimits } from "worker_threads";
 
+const TypePure = createToken({ name: "Pure", pattern: /Pure/ });
+const TypeString = createToken({ name: "TypeString", pattern: /String/ });
+const TypeFloat32 = createToken({ name: "Float32", pattern: /Float32/ });
+const TypeFloat64 = createToken({ name: "Float64", pattern: /Float64/ });
+const TypeInt8 = createToken({ name: "Int8", pattern: /Int8/ });
+const TypeInt16 = createToken({ name: "Int16", pattern: /Int16/ });
+const TypeInt32 = createToken({ name: "Int32", pattern: /Int32/ });
+const TypeInt64 = createToken({ name: "Int64", pattern: /Int64/ });
+const TypeBigInt = createToken({ name: "BigInt", pattern: /BigInt/ });
+
 const LParen = createToken({ name: "LParen", pattern: /\(/ });
 const RParen = createToken({ name: "RParen", pattern: /\)/ });
 const LCurly = createToken({ name: "LCurly", pattern: /{/ });
 const RCurly = createToken({ name: "RCurly", pattern: /}/ });
 const LSquare = createToken({ name: "LSquare", pattern: /\[/ });
 const RSquare = createToken({ name: "RSquare", pattern: /]/ });
+const Ampersand = createToken({ name: "Ampersand", pattern: /&/ });
 const Comma = createToken({ name: "Comma", pattern: /,/ });
 const Colon = createToken({ name: "Colon", pattern: /:/ });
 const Assignment = createToken({ name: "Assignment", pattern: /=/ });
@@ -29,21 +40,26 @@ const Identifier = createToken({ name: "Identifier", pattern: /[a-zA-Z]\w*/ });
 const SingleComment = createToken({
   name: "SingleComment",
   pattern: /\/\/[^\n\r]*?(?:\*\)|[\r\n|\n])/,
-  // pattern: /\/\/(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\n|\r/
-  // pattern: /\/\/(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\n\r/
+  // pattern: /\/\/[^\n\r]*?(?:\*\)|[\r\n|\n])/,
 });
 
 const MultiLineComment = createToken({
   name: "MultiLineComment",
   pattern: /\/\*[^*]*\*+(?:[^/*][^*]*\*+)*\/[\n]*/,
-  // pattern: /\/\/(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\n|\r/
-  // pattern: /\/\/(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\n\r/
+  // pattern: /\/\*[^*]*\*+(?:[^/*][^*]*\*+)*\/[\n]*/,
 });
 
 // $FLOAT32_ADD$
 const ReferenceMethodCall = createToken({
   name: "ReferenceMethodCall",
-  pattern: /\$(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\$/,
+  pattern: /\$([^\$]*)\$/,
+  // pattern: /\$(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\$/,
+});
+
+// `concat`
+const JavaMethodCall = createToken({
+  name: "JavaMethodCall",
+  pattern: /`([^`]*)`/,
 });
 
 const WhiteSpace = createToken({
@@ -57,18 +73,18 @@ const allTokens = [
   SingleComment,
   MultiLineComment,
   Instance,
-  PubDef,
-  Pub,
-  LParen,
-  RParen,
-  LCurly,
-  RCurly,
-  LSquare,
-  RSquare,
-  Comma,
-  Colon,
-  Assignment,
+  PubDef, Pub,
+  LParen, RParen,
+  LCurly, RCurly,
+  LSquare, RSquare,
+  Comma, Colon,
+  Assignment, Ampersand,
   ReferenceMethodCall,
+  JavaMethodCall,
+
+  TypePure, TypeString,
+  TypeFloat32, TypeFloat64,
+  TypeInt8, TypeInt16, TypeInt32, TypeInt64, TypeBigInt,
 
   Identifier,
 ];
@@ -94,9 +110,10 @@ class FlixParser extends EmbeddedActionsParser {
     this.MANY({
       DEF: () => {
         this.OR([
-          { ALT: () => result += this.SUBRULE(this.singleLineComment) },
-          { ALT: () => result += this.SUBRULE(this.multiLineComment) },
-          { ALT: () => result += this.SUBRULE(this.instance) },
+          { ALT: () => result += this.SUBRULE(this.singleLineComment)},
+          { ALT: () => result += this.SUBRULE(this.multiLineComment)},
+          { ALT: () => result += this.SUBRULE(this.instance)},
+          { ALT: () => result += this.SUBRULE(this.singleBracketWithType)},
         ]);
       },
     });
@@ -127,13 +144,13 @@ class FlixParser extends EmbeddedActionsParser {
     let instanceBody = this.SUBRULE(this.instanceBody);
     this.indentationLevel--;
     this.CONSUME(RCurly);
-    return "instance " + identifier.image + instanceType + " {\n" + instanceBody + "\n}";
+    return "instance " + identifier.image + instanceType + " {\n" + instanceBody + "\n}\n\n";
   });
 
   private instanceBody = this.RULE("instanceBody", () => {
     let result = "";
     this.OR([
-      { ALT: () => result +=  this.SUBRULE(this.method) },
+      { ALT: () => result += this.SUBRULE(this.method) },
     ]);
 
     return result;
@@ -159,15 +176,15 @@ class FlixParser extends EmbeddedActionsParser {
       + returnType + " = " + methodBody;
   });
 
-  private type = this.RULE("type", () => {
-    let type = this.CONSUME(Identifier);
-    return type.image;
-  });
+  // private type = this.RULE("type", () => {
+  //   let type = this.CONSUME(Identifier);
+  //   return type.image;
+  // });
 
   private methodReturnType = this.RULE("methodReturnType", () => {
     this.CONSUME(Colon);
-    let type = this.CONSUME(Identifier);
-    return ": " + type.image;
+    let type = this.SUBRULE(this.oneOfTheTypes);
+    return ": " + type;
   });
 
   private methodBody = this.RULE("methodBody", () => {
@@ -199,7 +216,8 @@ class FlixParser extends EmbeddedActionsParser {
   private argumentsWithType = this.RULE("argumentsWithType", () => {
     let param = this.CONSUME(Identifier);
     this.CONSUME(Colon);
-    let paramType = this.SUBRULE(this.type);
+    let paramType = this.SUBRULE(this.oneOfTheTypes);
+    // let paramType = this.SUBRULE(this.type);
     return param.image + ": " + paramType;
   });
 
@@ -211,9 +229,25 @@ class FlixParser extends EmbeddedActionsParser {
 
   private singleBracketWithType = this.RULE("singleBracketType", () => {
     this.CONSUME(LSquare);
-    let instanceType = this.CONSUME(Identifier);
+    // let instanceType = this.CONSUME(Identifier);
+    let instanceType = this.SUBRULE(this.oneOfTheTypes);
     this.CONSUME(RSquare);
-    return "[" + instanceType.image + "]";
+    return "[" + instanceType + "]";
+  });
+
+  private oneOfTheTypes = this.RULE("oneOfTheTypes", () => {
+    let typeResult = this.OR([
+      { ALT: () => this.CONSUME(TypePure)},
+      { ALT: () => this.CONSUME(TypeString)},
+      { ALT: () => this.CONSUME(TypeFloat32)},
+      { ALT: () => this.CONSUME(TypeFloat64)},
+      { ALT: () => this.CONSUME(TypeInt8)},
+      { ALT: () => this.CONSUME(TypeInt16)},
+      { ALT: () => this.CONSUME(TypeInt32)},
+      { ALT: () => this.CONSUME(TypeInt64)},
+      { ALT: () => this.CONSUME(TypeBigInt)},
+    ]);
+    return typeResult.image;
   });
 }
 

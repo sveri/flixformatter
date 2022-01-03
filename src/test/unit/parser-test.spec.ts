@@ -5,21 +5,23 @@ import { parse } from '../../formatter/parser';
 describe('Indentation should remain the same for: ', () => {
     it(`one single line comment`, () => {
 
-        expect(parse(`//\n`, 4)).to.equal("//");
+        expect(parse(`//\n`, 4)).to.equal("//\n");
+    });
+    it(`one nonempty single line comment`, () => {
+
+        expect(parse(`//foo\n`, 4)).to.equal("//foo\n");
     });
     it(`single line commens with one word`, () => {
-        expect(parse("//asffoo\r\n", 4)).to.equal("//asffoo");
+        expect(parse("//asffoo\r\n", 4)).to.equal("//asffoo\n");
     });
     it(`single line comment with spaced text`, () => {
-        expect(parse("//asf foo\n", 4)).to.equal("//asf foo");
+        expect(parse("//asf foo\n", 4)).to.equal("//asf foo\n");
     });
     it(`file multiple single line comments`, () => {
-        expect(parse(`//\n//
-`, 4)).to.equal("//\n//");
+        expect(parse(`//\n//\n`, 4)).to.equal("//\n//\n");
     });
     it(`file three single line comments`, () => {
-        expect(parse(`//\n//\n//
-`, 4)).to.equal("//\n//\n//");
+        expect(parse(`//\n//\n//\n`, 4)).to.equal("//\n//\n//\n");
     });
     
     it(`multiline comment on one line`, () => {

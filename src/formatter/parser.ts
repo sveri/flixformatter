@@ -26,7 +26,8 @@ const Identifier = createToken({ name: "Identifier", pattern: /[a-zA-Z]\w*/ });
 
 const SingleComment = createToken({
   name: "singleComment",
-  pattern: /\/\/(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\n|\r/
+  pattern: /\/\/[^\n\r$]*?(?:\*\)|[\r\n|\n|$])/
+  // pattern: /\/\/(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\n|\r/
   // pattern: /\/\/(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\n\r/
 });
 
@@ -44,8 +45,8 @@ const WhiteSpace = createToken({
 
 
 const allTokens = [
-  WhiteSpace,
   SingleComment,
+  WhiteSpace,
   Instance, PubDef, Pub,
   LParen, RParen,
   LCurly, RCurly,
@@ -56,10 +57,11 @@ const allTokens = [
 
   Identifier,
 ];
-const jsonLexer = new Lexer(allTokens);
+const flixLexer = new Lexer(allTokens);
 
 
-class FlixParser extends EmbeddedActionsParser {
+// CST
+class FlixParser extends CstParser {
   tabSize = 4;
   indentationLevel = 0;
 
@@ -73,137 +75,379 @@ class FlixParser extends EmbeddedActionsParser {
   }
 
   public flix = this.RULE("file", () => {
-    let result = "";
-    this.OR([
-      { ALT: () => result += this.SUBRULE(this.singleLineComment) },
-      { ALT: () => result += this.SUBRULE(this.instance) },
-    ]);
-
-    return result;
+    
+    this.MANY({
+      DEF: () => {
+        this.OR([
+          { ALT: () => this.SUBRULE(this.singleLineComment) },
+          // { ALT: () => this.SUBRULE(this.instance) },
+        ]);
+      }
+    });
+    // this.OR([
+    //   { ALT: () => this.SUBRULE(this.singleLineComment) },
+    //   { ALT: () => this.SUBRULE(this.instance) },
+    // ]);
   });
 
   private singleLineComment = this.RULE("singleLineComment", () => {
-    const r = this.CONSUME(SingleComment);
-    return r.image;
+    this.CONSUME(SingleComment);
   });
 
-  private instance = this.RULE("instance", () => {
-    this.CONSUME(Instance);
-    let identifier = this.CONSUME(Identifier);
-    let instanceType = this.SUBRULE(this.singleBracketWithType);
-    this.CONSUME(LCurly);
-    this.indentationLevel++;
-    let instanceBody = this.SUBRULE(this.instanceBody);
-    this.indentationLevel--;
-    this.CONSUME(RCurly);
-    return "instance " + identifier.image + instanceType + " {\n" + instanceBody + "\n}asfsadf";
-  });
+  // private instance = this.RULE("instance", () => {
+  //   this.CONSUME(Instance);
+  //   this.CONSUME(Identifier);
+  //   this.SUBRULE(this.singleBracketWithType);
+  //   this.CONSUME(LCurly);
+  //   this.SUBRULE(this.instanceBody);
+  //   this.CONSUME(RCurly);
+  // });
 
-  private instanceBody = this.RULE("instanceBody", () => {
-    let result = "";
-    this.OR([
-      { ALT: () => result +=  this.SUBRULE(this.method) },
-    ]);
+  // private instanceBody = this.RULE("instanceBody", () => {
+  //   this.OR([
+  //     { ALT: () =>  this.SUBRULE(this.method) },
+  //   ]);
+  // });
 
-    return result;
-  });
-
-  private method = this.RULE("method", () => {
-    const pubDef = this.CONSUME(PubDef);
-    const methodName = this.CONSUME(Identifier);
+  // private method = this.RULE("method", () => {
+  //   this.CONSUME(PubDef);
+  //   this.CONSUME(Identifier);
     
-    let argumentsWithType: any[] = [];
-    this.CONSUME(LParen);
-    this.MANY_SEP({
-      SEP: Comma, DEF: () => {
-        argumentsWithType.push(this.SUBRULE(this.argumentsWithType));
-      }
-    });
-    this.CONSUME(RParen);
-    let returnType = this.SUBRULE(this.methodReturnType);
-    this.CONSUME(Assignment);
-    let methodBody = this.SUBRULE(this.methodBody);
+  //   this.CONSUME(LParen);
+  //   this.MANY_SEP({
+  //     SEP: Comma, DEF: () => {
+  //       this.SUBRULE(this.argumentsWithType);
+  //     }
+  //   });
+  //   this.CONSUME(RParen);
+  //   this.SUBRULE(this.methodReturnType);
+  //   this.CONSUME(Assignment);
+  //   this.SUBRULE(this.methodBody);
+  // });
 
-    return this.getIndentation() + "-----------------------------" + pubDef.image + " " + methodName.image + "(" + argumentsWithType.join(", ") + ")"
-      + returnType + " = " + methodBody;
-  });
+  // private type = this.RULE("type", () => {
+  //   this.CONSUME(Identifier);
+  // });
 
-  private type = this.RULE("type", () => {
-    let type = this.CONSUME(Identifier);
-    return type.image;
-  });
+  // private methodReturnType = this.RULE("methodReturnType", () => {
+  //   this.CONSUME(Colon);
+  //   this.CONSUME(Identifier);
+  // });
 
-  private methodReturnType = this.RULE("methodReturnType", () => {
-    this.CONSUME(Colon);
-    let type = this.CONSUME(Identifier);
-    return ": " + type.image;
-  });
+  // private methodBody = this.RULE("methodBody", () => {
+  //   this.OR([
+  //     { ALT: () => this.SUBRULE(this.referenceMethodCall) },
+  //   ]);
+  // });
 
-  private methodBody = this.RULE("methodBody", () => {
-    let result = "";
-    this.OR([
-      { ALT: () => result += this.SUBRULE(this.referenceMethodCall) },
-    ]);
+  // // $FLOAT32_ADD$(x, y)
+  // private referenceMethodCall = this.RULE("referenceMethodCall", () => {
+  //   this.CONSUME(ReferenceMethodCall);
 
-    return result;
-  });
+  //   this.CONSUME(LParen);
+  //   this.MANY_SEP({
+  //     SEP: Comma, DEF: () => {
+  //       this.SUBRULE(this.argumentsWithoutType);
+  //     }
+  //   });
+  //   this.CONSUME(RParen);
+  // });
 
-  // $FLOAT32_ADD$(x, y)
-  private referenceMethodCall = this.RULE("referenceMethodCall", () => {
-    let call = this.CONSUME(ReferenceMethodCall);
+  // // (x: Float32, y: Float32)
+  // private argumentsWithType = this.RULE("argumentsWithType", () => {
+  //   this.CONSUME(Identifier);
+  //   this.CONSUME(Colon);
+  //   this.SUBRULE(this.type);
+  // });
 
-    let argumentsWithoutType: any[] = [];
-    this.CONSUME(LParen);
-    this.MANY_SEP({
-      SEP: Comma, DEF: () => {
-        argumentsWithoutType.push(this.SUBRULE(this.argumentsWithouthType));
-      }
-    });
-    this.CONSUME(RParen);
-    
-    return call.image + "(" + argumentsWithoutType.join(", ") + ")";
-  });
+  // // (x, y)
+  // private argumentsWithoutType = this.RULE("argumentsWithoutType", () => {
+  //   this.CONSUME(Identifier);
+  // });
 
-  // (x: Float32, y: Float32)
-  private argumentsWithType = this.RULE("argumentsWithType", () => {
-    let param = this.CONSUME(Identifier);
-    this.CONSUME(Colon);
-    let paramType = this.SUBRULE(this.type);
-    return param.image + ": " + paramType;
-  });
-
-  // (x, y)
-  private argumentsWithouthType = this.RULE("argumentsWithouthType", () => {
-    let param = this.CONSUME(Identifier);
-    return param.image;
-  });
-
-  private singleBracketWithType = this.RULE("singleBracketType", () => {
-    this.CONSUME(LSquare);
-    let instanceType = this.CONSUME(Identifier);
-    this.CONSUME(RSquare);
-    return "[" + instanceType.image + "]";
-  });
+  // private singleBracketWithType = this.RULE("singleBracketType", () => {
+  //   this.CONSUME(LSquare);
+  //   this.CONSUME(Identifier);
+  //   this.CONSUME(RSquare);
+  // });
 }
 
 const parser = new FlixParser();
 
+const BaseVisitor = parser.getBaseCstVisitorConstructor();
+
+// This BaseVisitor include default visit methods that simply traverse the CST.
+const BaseVisitorWithDefaults =parser.getBaseCstVisitorConstructorWithDefaults();
+
+class CustomVisitor extends BaseVisitorWithDefaults {
+  constructor() {
+    super();
+    // The "validateVisitor" method is a helper utility which performs static analysis
+    // to detect missing or redundant visitor methods
+    this.validateVisitor();
+  }
+
+  file(ctx: any) {
+    console.log("file: " + JSON.stringify(ctx));
+    let result = "";
+
+    for (let comment of ctx.singleLineComment) {
+      result += this.visit(ctx.singleLineComment);
+  }  
+    
+    // ctx.singleLineComment.forEach(comment: any => {
+    //   this.visit(comment);
+    // });
+    // let singleLineComment = this.visit(ctx.singleLineComment);
+    // const tableName = ctx.Identifier[0].image;
+    
+    return result;
+  }
+  
+  singleLineComment(ctx: any) {
+    console.log("singleLineComment: " + JSON.stringify(ctx));
+    return ctx.singleComment[0].image;
+  }
+
+  // instance(ctx: any) {
+  //   return "";
+  // }
+
+  // instanceBody(ctx: any) {
+  //   return "";
+  // }
+
+  // method(ctx: any) {
+  //   return "";
+  // }
+
+  // type(ctx: any) {
+  //   return "";
+  // }
+
+  // methodReturnType(ctx: any) {
+  //   return "";
+  // }
+
+  // methodBody(ctx: any) {
+  //   return "";
+  // }
+
+  // referenceMethodCall(ctx: any) {
+  //   return "";
+  // }
+
+  // argumentsWithType(ctx: any) {
+  //   return "";
+  // }
+
+  // argumentsWithoutType(ctx: any) {
+  //   return "";
+  // }
+
+  // singleBracketType(ctx: any) {
+  //   return "";
+  // }
+}
+
+// class CustomVisitorWithDefaults extends BaseVisitorWithDefaults {
+//   constructor() {
+//     super();
+//     this.validateVisitor();
+//   }
+
+//   /* Visit methods go here */
+// }
+
+const myVisitorInstance = new CustomVisitor();
+// const myVisitorInstanceWithDefaults = new CustomVisitorWithDefaults();
+
 export function parse(s: string, tabSize: number) {
 
-  const lexResult = jsonLexer.tokenize(s);
-
-  if (lexResult.errors !== undefined && lexResult.errors.length > 0) {
-    console.log("lexer errors: " + JSON.stringify(lexResult.errors));
-  }
-
+  const lexResult = flixLexer.tokenize(s);
+  // setting a new input will RESET the parser instance's state.
   parser.input = lexResult.tokens;
-  if (parser.errors !== undefined && parser.errors.length > 0) {
-    console.log("parser errors: " + JSON.stringify(parser.errors));
-  }
+  // any top level rule may be used as an entry point
+  const cst = parser.flix();
 
-  let parsedResult = parser.flix();
-  console.log("parsedResultttt: " + JSON.stringify(parsedResult));
+  // const toAstVisitorInstance = new CustomVisitor();
 
-  return parsedResult;
+  const ast = myVisitorInstance.visit(cst);
+
+  console.log("parsedResult: " + JSON.stringify(ast));
+  // this would be a TypeScript compilation error because our parser now has a clear API.
+  // let value = parser.json_OopsTypo()
+
+  // let res = {
+  //   cst: cst,
+  //   lexErrors: lexResult.errors,
+  //   parseErrors: parser.errors
+  // };
+
+  return ast;
+
+  // const lexResult = jsonLexer.tokenize(s);
+
+  // if (lexResult.errors !== undefined && lexResult.errors.length > 0) {
+  //   console.log("lexer errors: " + JSON.stringify(lexResult.errors));
+  // }
+
+  // parser.input = lexResult.tokens;
+  // if (parser.errors !== undefined && parser.errors.length > 0) {
+  //   console.log("parser errors: " + JSON.stringify(parser.errors));
+  // }
+
+  // let parsedResult = parser.flix();
+
+  // return parsedResult;
 }
+
+
+// class FlixParser extends EmbeddedActionsParser {
+//   tabSize = 4;
+//   indentationLevel = 0;
+
+//   constructor() {
+//     super(allTokens);
+//     this.performSelfAnalysis();
+//   }
+
+//   private getIndentation() {
+//     return " ".repeat(this.tabSize * this.indentationLevel);
+//   }
+
+//   public flix = this.RULE("file", () => {
+//     let result = "";
+//     this.OR([
+//       { ALT: () => gthis.SUBRULE(this.singleLineComment) },
+//       { ALT: () => result += this.SUBRULE(this.instance) },
+//     ]);
+
+//     return result;
+//   });
+
+//   private singleLineComment = this.RULE("singleLineComment", () => {
+//     const r = this.CONSUME(SingleComment);
+//     return r.image;
+//   });
+
+//   private instance = this.RULE("instance", () => {
+//     this.CONSUME(Instance);
+//     let identifier = this.CONSUME(Identifier);
+//     let instanceType = this.SUBRULE(this.singleBracketWithType);
+//     this.CONSUME(LCurly);
+//     this.indentationLevel++;
+//     let instanceBody = this.SUBRULE(this.instanceBody);
+//     this.indentationLevel--;
+//     this.CONSUME(RCurly);
+//     return "instance " + identifier.image + instanceType + " {\n" + instanceBody + "\n}asfsadf";
+//   });
+
+//   private instanceBody = this.RULE("instanceBody", () => {
+//     let result = "";
+//     this.OR([
+//       { ALT: () => result +=  this.SUBRULE(this.method) },
+//     ]);
+
+//     return result;
+//   });
+
+//   private method = this.RULE("method", () => {
+//     const pubDef = this.CONSUME(PubDef);
+//     const methodName = this.CONSUME(Identifier);
+    
+//     let argumentsWithType: any[] = [];
+//     this.CONSUME(LParen);
+//     this.MANY_SEP({
+//       SEP: Comma, DEF: () => {
+//         argumentsWithType.push(this.SUBRULE(this.argumentsWithType));
+//       }
+//     });
+//     this.CONSUME(RParen);
+//     let returnType = this.SUBRULE(this.methodReturnType);
+//     this.CONSUME(Assignment);
+//     let methodBody = this.SUBRULE(this.methodBody);
+
+//     return this.getIndentation() + "-----------------------------" + pubDef.image + " " + methodName.image + "(" + argumentsWithType.join(", ") + ")"
+//       + returnType + " = " + methodBody;
+//   });
+
+//   private type = this.RULE("type", () => {
+//     let type = this.CONSUME(Identifier);
+//     return type.image;
+//   });
+
+//   private methodReturnType = this.RULE("methodReturnType", () => {
+//     this.CONSUME(Colon);
+//     let type = this.CONSUME(Identifier);
+//     return ": " + type.image;
+//   });
+
+//   private methodBody = this.RULE("methodBody", () => {
+//     let result = "";
+//     this.OR([
+//       { ALT: () => result += this.SUBRULE(this.referenceMethodCall) },
+//     ]);
+
+//     return result;
+//   });
+
+//   // $FLOAT32_ADD$(x, y)
+//   private referenceMethodCall = this.RULE("referenceMethodCall", () => {
+//     let call = this.CONSUME(ReferenceMethodCall);
+
+//     let argumentsWithoutType: any[] = [];
+//     this.CONSUME(LParen);
+//     this.MANY_SEP({
+//       SEP: Comma, DEF: () => {
+//         argumentsWithoutType.push(this.SUBRULE(this.argumentsWithouthType));
+//       }
+//     });
+//     this.CONSUME(RParen);
+    
+//     return call.image + "(" + argumentsWithoutType.join(", ") + ")";
+//   });
+
+//   // (x: Float32, y: Float32)
+//   private argumentsWithType = this.RULE("argumentsWithType", () => {
+//     let param = this.CONSUME(Identifier);
+//     this.CONSUME(Colon);
+//     let paramType = this.SUBRULE(this.type);
+//     return param.image + ": " + paramType;
+//   });
+
+//   // (x, y)
+//   private argumentsWithouthType = this.RULE("argumentsWithouthType", () => {
+//     let param = this.CONSUME(Identifier);
+//     return param.image;
+//   });
+
+//   private singleBracketWithType = this.RULE("singleBracketType", () => {
+//     this.CONSUME(LSquare);
+//     let instanceType = this.CONSUME(Identifier);
+//     this.CONSUME(RSquare);
+//     return "[" + instanceType.image + "]";
+//   });
+// }
+
+// const parser = new FlixParser();
+
+// export function parse(s: string, tabSize: number) {
+
+//   const lexResult = jsonLexer.tokenize(s);
+
+//   if (lexResult.errors !== undefined && lexResult.errors.length > 0) {
+//     console.log("lexer errors: " + JSON.stringify(lexResult.errors));
+//   }
+
+//   parser.input = lexResult.tokens;
+//   if (parser.errors !== undefined && parser.errors.length > 0) {
+//     console.log("parser errors: " + JSON.stringify(parser.errors));
+//   }
+
+//   let parsedResult = parser.flix();
+//   console.log("parsedResultttt: " + JSON.stringify(parsedResult));
+
+//   return parsedResult;
+// }
 

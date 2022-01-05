@@ -3,10 +3,10 @@ import { parse } from '../../formatter/parser';
 
 
 describe('Indentation should remain the same for: ', () => {
-    it(`bracket with type`, () => {
+    // it(`java import`, () => {
 
-        expect(parse(`[Float32]`, 4)).to.equal("[Float32]");
-    });
+    //     expect(parse(`import java.lang.String.concat(String);`, 4)).to.equal("import java.lang.String.concat(String);");
+    // });
     it(`one single line comment`, () => {
 
         expect(parse(`//\n`, 4)).to.equal("//");
@@ -82,7 +82,8 @@ describe('Indentation should remain the same for: ', () => {
         expect(parse(`instance Add[Float32] {
     pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)
 }`, 4)).to.equal(`instance Add[Float32] {
-    pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)
+    pub def add(x: Float32, y: Float32): Float32 =
+        $FLOAT32_ADD$(x, y)
 }`);
     });
 
@@ -92,7 +93,8 @@ instance Add[Float32] {
     pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)
 }`, 4)).to.equal(`// foo
 instance Add[Float32] {
-    pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)
+    pub def add(x: Float32, y: Float32): Float32 =
+        $FLOAT32_ADD$(x, y)
 }`);
     });
     
@@ -104,11 +106,13 @@ instance Add[Float32] {
 instance Add[Float64] {
     pub def add(x: Float64, y: Float64): Float64 = $FLOAT64_ADD$(x, y)
 }`, 4)).to.equal(`instance Add[Float32] {
-    pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)
+    pub def add(x: Float32, y: Float32): Float32 =
+        $FLOAT32_ADD$(x, y)
 }
 
 instance Add[Float64] {
-    pub def add(x: Float64, y: Float64): Float64 = $FLOAT64_ADD$(x, y)
+    pub def add(x: Float64, y: Float64): Float64 =
+        $FLOAT64_ADD$(x, y)
 }`);
     });
 

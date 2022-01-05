@@ -3,6 +3,7 @@ import * as nearley from "nearley";
 import { default as myGrammar } from "../grammar";
 import { parseInstance } from "./instance.parser";
 import { parseClass } from "./class.parser";
+import { FlixMethodParser } from "./method.parser";
 
 import {
   createToken,
@@ -10,94 +11,20 @@ import {
   CstParser,
   EmbeddedActionsParser,
 } from "chevrotain";
-import { resourceLimits } from "worker_threads";
 
-const TypePure = createToken({ name: "Pure", pattern: /Pure/ });
-const TypeString = createToken({ name: "TypeString", pattern: /String/ });
-const TypeFloat32 = createToken({ name: "Float32", pattern: /Float32/ });
-const TypeFloat64 = createToken({ name: "Float64", pattern: /Float64/ });
-const TypeInt8 = createToken({ name: "Int8", pattern: /Int8/ });
-const TypeInt16 = createToken({ name: "Int16", pattern: /Int16/ });
-const TypeInt32 = createToken({ name: "Int32", pattern: /Int32/ });
-const TypeInt64 = createToken({ name: "Int64", pattern: /Int64/ });
-const TypeBigInt = createToken({ name: "BigInt", pattern: /BigInt/ });
+import * as T from './token';
 
-const LParen = createToken({ name: "LParen", pattern: /\(/ });
-const RParen = createToken({ name: "RParen", pattern: /\)/ });
-const LCurly = createToken({ name: "LCurly", pattern: /{/ });
-const RCurly = createToken({ name: "RCurly", pattern: /}/ });
-const LSquare = createToken({ name: "LSquare", pattern: /\[/ });
-const RSquare = createToken({ name: "RSquare", pattern: /]/ });
-const Ampersand = createToken({ name: "Ampersand", pattern: /&/ });
-const Comma = createToken({ name: "Comma", pattern: /,/ });
-const Colon = createToken({ name: "Colon", pattern: /:/ });
-const Assignment = createToken({ name: "Assignment", pattern: /=/ });
-const Instance = createToken({ name: "Instance", pattern: /instance/ });
-const PubDef = createToken({ name: "PubDef", pattern: /pub def/ });
-const Pub = createToken({ name: "Pub", pattern: /pub / });
-const Identifier = createToken({ name: "Identifier", pattern: /[a-zA-Z]\w*/ });
 
-const SingleComment = createToken({
-  name: "SingleComment",
-  pattern: /\/\/[^\n\r]*?(?:\*\)|[\r\n|\n])/,
-  // pattern: /\/\/[^\n\r]*?(?:\*\)|[\r\n|\n])/,
-});
-
-const MultiLineComment = createToken({
-  name: "MultiLineComment",
-  pattern: /\/\*[^*]*\*+(?:[^/*][^*]*\*+)*\/[\n]*/,
-  // pattern: /\/\*[^*]*\*+(?:[^/*][^*]*\*+)*\/[\n]*/,
-});
-
-// $FLOAT32_ADD$
-const ReferenceMethodCall = createToken({
-  name: "ReferenceMethodCall",
-  pattern: /\$([^\$]*)\$/,
-  // pattern: /\$(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\$/,
-});
-
-// `concat`
-const JavaMethodCall = createToken({
-  name: "JavaMethodCall",
-  pattern: /`([^`]*)`/,
-});
-
-const WhiteSpace = createToken({
-  name: "WhiteSpace",
-  pattern: /\s+/,
-  group: Lexer.SKIPPED,
-});
-
-const allTokens = [
-  WhiteSpace,
-  SingleComment,
-  MultiLineComment,
-  Instance,
-  PubDef, Pub,
-  LParen, RParen,
-  LCurly, RCurly,
-  LSquare, RSquare,
-  Comma, Colon,
-  Assignment, Ampersand,
-  ReferenceMethodCall,
-  JavaMethodCall,
-
-  TypePure, TypeString,
-  TypeFloat32, TypeFloat64,
-  TypeInt8, TypeInt16, TypeInt32, TypeInt64, TypeBigInt,
-
-  Identifier,
-];
-const flixLexer = new Lexer(allTokens);
+const flixLexer = new Lexer(T.allTokens);
 
 
 // Embedded Actions
 class FlixParser extends EmbeddedActionsParser {
   tabSize = 4;
   indentationLevel = 0;
-
+  
   constructor() {
-    super(allTokens);
+    super(T.allTokens);
     this.performSelfAnalysis();
   }
 
@@ -113,38 +40,34 @@ class FlixParser extends EmbeddedActionsParser {
           { ALT: () => result += this.SUBRULE(this.singleLineComment)},
           { ALT: () => result += this.SUBRULE(this.multiLineComment)},
           { ALT: () => result += this.SUBRULE(this.instance)},
-          { ALT: () => result += this.SUBRULE(this.singleBracketWithType)},
+          // { ALT: () => result += this.SUBRULE(this.javaImport)},
         ]);
       },
     });
-    // this.OR([
-    //   { ALT: () => result += this.SUBRULE(this.singleLineComment) },
-    //   { ALT: () => result += this.SUBRULE(this.instance) },
-    // ]);
 
     return result;
   });
 
   private singleLineComment = this.RULE("singleLineComment", () => {
-    const r = this.CONSUME(SingleComment);
+    const r = this.CONSUME(T.SingleComment);
     return r.image;
   });
 
   private multiLineComment = this.RULE("multiLineComment", () => {
-    const r = this.CONSUME(MultiLineComment);
+    const r = this.CONSUME(T.MultiLineComment);
     return r.image;
   });
 
   private instance = this.RULE("instance", () => {
-    this.CONSUME(Instance);
-    let identifier = this.CONSUME(Identifier);
+    this.CONSUME(T.Instance);
+    let identifier = this.CONSUME(T.Identifier);
     let instanceType = this.SUBRULE(this.singleBracketWithType);
-    this.CONSUME(LCurly);
+    this.CONSUME(T.LCurly);
     this.indentationLevel++;
     let instanceBody = this.SUBRULE(this.instanceBody);
     this.indentationLevel--;
-    this.CONSUME(RCurly);
-    return "instance " + identifier.image + instanceType + " {\n" + instanceBody + "\n}\n\n";
+    this.CONSUME(T.RCurly);
+    return "instance " + identifier.image + instanceType + " {\n" + instanceBody + "}\n\n";
   });
 
   private instanceBody = this.RULE("instanceBody", () => {
@@ -156,96 +79,132 @@ class FlixParser extends EmbeddedActionsParser {
     return result;
   });
 
-  private method = this.RULE("method", () => {
-    const pubDef = this.CONSUME(PubDef);
-    const methodName = this.CONSUME(Identifier);
+  public method = this.RULE("method", () => {
+    const pubDef = this.CONSUME(T.PubDef);
+    const methodName = this.CONSUME(T.Identifier);
 
     let argumentsWithType: any[] = [];
-    this.CONSUME(LParen);
+    this.CONSUME(T.LParen);
     this.MANY_SEP({
-      SEP: Comma, DEF: () => {
+      SEP: T.Comma, DEF: () => {
         argumentsWithType.push(this.SUBRULE(this.argumentsWithType));
       }
     });
-    this.CONSUME(RParen);
+    this.CONSUME(T.RParen);
     let returnType = this.SUBRULE(this.methodReturnType);
-    this.CONSUME(Assignment);
+    this.CONSUME(T.Assignment);
     let methodBody = this.SUBRULE(this.methodBody);
 
     return this.getIndentation() + pubDef.image + " " + methodName.image + "(" + argumentsWithType.join(", ") + ")"
-      + returnType + " = " + methodBody;
+      + returnType + " =\n" + methodBody;
   });
 
-  // private type = this.RULE("type", () => {
-  //   let type = this.CONSUME(Identifier);
-  //   return type.image;
-  // });
-
   private methodReturnType = this.RULE("methodReturnType", () => {
-    this.CONSUME(Colon);
+    this.CONSUME(T.Colon);
     let type = this.SUBRULE(this.oneOfTheTypes);
     return ": " + type;
   });
 
   private methodBody = this.RULE("methodBody", () => {
     let result = "";
-    this.OR([
-      { ALT: () => result += this.SUBRULE(this.referenceMethodCall) },
-    ]);
+    this.indentationLevel++;
+    this.MANY({
+      DEF: () => {
+        this.OR([
+          { ALT: () => result += this.SUBRULE(this.referenceMethodCall)},
+          { ALT: () => result += this.SUBRULE(this.javaImport)},
+          { ALT: () => result += this.SUBRULE(this.completeJavaMethodCallWithType)},
+        ]);
+      },
+    });
+    this.indentationLevel--;
 
     return result;
   });
 
+  // (x \`concat\` y) as & Pure
+  private completeJavaMethodCallWithType = this.RULE("completeJavaMethodCallWithType", () => {
+    this.CONSUME(T.LParen);
+    let lhs = this.SUBRULE(this.lhsOfJavaMethodCall);
+    let method = this.CONSUME(T.JavaMethodCall);
+    let rhs = this.SUBRULE(this.rhsOfJavaMethodCall);
+    this.CONSUME(T.RParen);
+    
+    this.CONSUME(T.As);
+    
+    this.CONSUME(T.Ampersand);
+    
+    let type = this.SUBRULE(this.oneOfTheTypes);
+
+    // return call.image + "(" + callIdentifier.join(", ") + ")";
+    return this.getIndentation() + "(" + lhs + " " + method.image + " " + 
+      rhs + ") as & " + type + "\n";
+  });
+
+  private lhsOfJavaMethodCall = this.RULE("lhsOfJavaMethodCall", () => {
+    let imports = this.CONSUME(T.Identifier);
+    return imports.image;
+  });
+
+  private rhsOfJavaMethodCall = this.RULE("rhsOfJavaMethodCall", () => {
+    let imports = this.CONSUME(T.Identifier);
+    return imports.image;
+  });
+
+  private javaImport = this.RULE("javaImport", () => {
+    let imports = this.CONSUME(T.JavaImport);
+
+    return this.getIndentation() + imports.image + "\n";
+  });
+
   // $FLOAT32_ADD$(x, y)
   private referenceMethodCall = this.RULE("referenceMethodCall", () => {
-    let call = this.CONSUME(ReferenceMethodCall);
+    let call = this.CONSUME(T.ReferenceMethodCall);
 
     let argumentsWithoutType: any[] = [];
-    this.CONSUME(LParen);
+    this.CONSUME(T.LParen);
     this.MANY_SEP({
-      SEP: Comma, DEF: () => {
+      SEP: T.Comma, DEF: () => {
         argumentsWithoutType.push(this.SUBRULE(this.argumentsWithouthType));
       }
     });
-    this.CONSUME(RParen);
+    this.CONSUME(T.RParen);
 
-    return call.image + "(" + argumentsWithoutType.join(", ") + ")";
+    return this.getIndentation() + call.image + "(" + argumentsWithoutType.join(", ") + ")\n";
   });
 
   // (x: Float32, y: Float32)
   private argumentsWithType = this.RULE("argumentsWithType", () => {
-    let param = this.CONSUME(Identifier);
-    this.CONSUME(Colon);
+    let param = this.CONSUME(T.Identifier);
+    this.CONSUME(T.Colon);
     let paramType = this.SUBRULE(this.oneOfTheTypes);
-    // let paramType = this.SUBRULE(this.type);
     return param.image + ": " + paramType;
   });
 
   // (x, y)
   private argumentsWithouthType = this.RULE("argumentsWithouthType", () => {
-    let param = this.CONSUME(Identifier);
+    let param = this.CONSUME(T.Identifier);
     return param.image;
   });
 
   private singleBracketWithType = this.RULE("singleBracketType", () => {
-    this.CONSUME(LSquare);
-    // let instanceType = this.CONSUME(Identifier);
+    this.CONSUME(T.LSquare);
     let instanceType = this.SUBRULE(this.oneOfTheTypes);
-    this.CONSUME(RSquare);
+    this.CONSUME(T.RSquare);
     return "[" + instanceType + "]";
   });
 
   private oneOfTheTypes = this.RULE("oneOfTheTypes", () => {
     let typeResult = this.OR([
-      { ALT: () => this.CONSUME(TypePure)},
-      { ALT: () => this.CONSUME(TypeString)},
-      { ALT: () => this.CONSUME(TypeFloat32)},
-      { ALT: () => this.CONSUME(TypeFloat64)},
-      { ALT: () => this.CONSUME(TypeInt8)},
-      { ALT: () => this.CONSUME(TypeInt16)},
-      { ALT: () => this.CONSUME(TypeInt32)},
-      { ALT: () => this.CONSUME(TypeInt64)},
-      { ALT: () => this.CONSUME(TypeBigInt)},
+      { ALT: () => this.CONSUME(T.TypePure)},
+      { ALT: () => this.CONSUME(T.TypeString)},
+      { ALT: () => this.CONSUME(T.TypeFloat32)},
+      { ALT: () => this.CONSUME(T.TypeFloat64)},
+      { ALT: () => this.CONSUME(T.TypeInt8)},
+      { ALT: () => this.CONSUME(T.TypeInt16)},
+      { ALT: () => this.CONSUME(T.TypeInt32)},
+      { ALT: () => this.CONSUME(T.TypeInt64)},
+      { ALT: () => this.CONSUME(T.TypeBigInt)},
     ]);
     return typeResult.image;
   });

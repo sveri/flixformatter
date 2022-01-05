@@ -27,10 +27,12 @@ export const Comma = createToken({ name: "Comma", pattern: /,/ });
 export const Dot = createToken({ name: "Dot", pattern: /./ });
 export const Colon = createToken({ name: "Colon", pattern: /:/ });
 export const Assignment = createToken({ name: "Assignment", pattern: /=/ });
-export const Instance = createToken({ name: "Instance", pattern: /instance/ });
-export const PubDef = createToken({ name: "PubDef", pattern: /pub def/ });
-export const Pub = createToken({ name: "Pub", pattern: /pub / });
-export const As = createToken({ name: "As", pattern: /as/ });
+export const Instance = createToken({ name: "Instance", pattern: /instance/});
+export const Lawless = createToken({ name: "Lawless", pattern: /lawless/});
+export const Class = createToken({ name: "Class", pattern: /class/});
+export const PubDef = createToken({ name: "PubDef", pattern: /pub def/});
+export const Pub = createToken({ name: "Pub", pattern: /pub/});
+export const As = createToken({ name: "As", pattern: /as/});
 export const Identifier = createToken({ name: "Identifier", pattern: /[a-zA-Z]\w*/ });
 
 export const SingleComment = createToken({
@@ -74,7 +76,7 @@ export const allTokens = [
   WhiteSpace,
   SingleComment,
   MultiLineComment,
-  Instance,
+  Instance, Lawless, Class,
   PubDef, Pub, As,
   LParen, RParen,
   LCurly, RCurly,

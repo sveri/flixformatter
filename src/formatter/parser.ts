@@ -21,10 +21,11 @@ const flixLexer = new Lexer(T.allTokens);
 // Embedded Actions
 class FlixParser extends EmbeddedActionsParser {
   tabSize = 4;
-  indentationLevel = 0;
+  indentationLevel;
   
   constructor() {
     super(T.allTokens);
+    this.indentationLevel = 0;
     this.performSelfAnalysis();
   }
 
@@ -40,6 +41,7 @@ class FlixParser extends EmbeddedActionsParser {
           { ALT: () => result += this.SUBRULE(this.singleLineComment)},
           { ALT: () => result += this.SUBRULE(this.multiLineComment)},
           { ALT: () => result += this.SUBRULE(this.instance)},
+          { ALT: () => result += this.SUBRULE(this.clazz)},
           // { ALT: () => result += this.SUBRULE(this.javaImport)},
         ]);
       },
@@ -50,12 +52,51 @@ class FlixParser extends EmbeddedActionsParser {
 
   private singleLineComment = this.RULE("singleLineComment", () => {
     const r = this.CONSUME(T.SingleComment);
-    return r.image;
+    return this.getIndentation() + r.image;
   });
 
   private multiLineComment = this.RULE("multiLineComment", () => {
     const r = this.CONSUME(T.MultiLineComment);
     return r.image;
+  });
+
+  private clazz = this.RULE("clazz", () => {
+    let className = this.SUBRULE(this.clazzNameWithModifier);
+    this.CONSUME(T.LCurly);
+    this.indentationLevel++;
+    let classBody = this.SUBRULE(this.instanceOrClassBody);
+    this.indentationLevel--;
+    this.CONSUME(T.RCurly);
+    return className +  "{\n" + classBody + "}\n\n";
+  });
+
+  // pub lawless class Foo | lawless class Foo | pub class Foo | class Foo
+  private clazzNameWithModifier = this.RULE("clazzNameWithModifier", () => {
+    let pub = "", lawless = "", name = "";
+    this.OR([
+      {ALT:()=>{
+        pub = this.CONSUME(T.Pub).image;
+        lawless = this.CONSUME(T.Lawless).image;
+        this.CONSUME(T.Class);
+        name = this.CONSUME(T.Identifier).image;
+      }},
+      {ALT:()=>{
+        lawless = this.CONSUME1(T.Lawless).image;
+        this.CONSUME1(T.Class);
+        name = this.CONSUME1(T.Identifier).image;
+      }},
+      {ALT:()=>{
+        this.CONSUME2(T.Class);
+        name = this.CONSUME2(T.Identifier).image;
+      }},
+      {ALT:()=>{
+        pub = this.CONSUME1(T.Pub).image;
+        this.CONSUME3(T.Class);
+        name = this.CONSUME3(T.Identifier).image;
+      }}
+    ]);
+    let type = this.SUBRULE(this.singleBracketWithType);
+    return pub + " " + lawless + " class " + name + type + " ";;
   });
 
   private instance = this.RULE("instance", () => {
@@ -64,18 +105,24 @@ class FlixParser extends EmbeddedActionsParser {
     let instanceType = this.SUBRULE(this.singleBracketWithType);
     this.CONSUME(T.LCurly);
     this.indentationLevel++;
-    let instanceBody = this.SUBRULE(this.instanceBody);
+    let instanceBody = this.SUBRULE(this.instanceOrClassBody);
     this.indentationLevel--;
     this.CONSUME(T.RCurly);
     return "instance " + identifier.image + instanceType + " {\n" + instanceBody + "}\n\n";
   });
 
-  private instanceBody = this.RULE("instanceBody", () => {
+  private instanceOrClassBody = this.RULE("instanceOrClassBody", () => {
     let result = "";
-    this.OR([
-      { ALT: () => result += this.SUBRULE(this.method) },
-    ]);
-
+    
+    this.MANY({
+      DEF: () => {
+        this.OR([
+          { ALT: () => result += this.SUBRULE(this.method)},      
+          { ALT: () => result += this.SUBRULE(this.singleLineComment)},
+          { ALT: () => result += this.SUBRULE(this.multiLineComment)},
+        ]);
+      },
+    });
     return result;
   });
 
@@ -92,11 +139,21 @@ class FlixParser extends EmbeddedActionsParser {
     });
     this.CONSUME(T.RParen);
     let returnType = this.SUBRULE(this.methodReturnType);
-    this.CONSUME(T.Assignment);
-    let methodBody = this.SUBRULE(this.methodBody);
+    // this.CONSUME(T.Assignment);
+    // let methodBody = this.SUBRULE(this.methodBody);
+    let assignment;
+    let methodBody = "";
+    this.OPTION(() => {assignment = this.CONSUME(T.Assignment);});
+    this.OPTION1(() => {methodBody = this.methodBody();});
+
+    if(assignment ===  undefined) {
+      assignment = "";
+    } else {
+      assignment = " =";
+    }
 
     return this.getIndentation() + pubDef.image + " " + methodName.image + "(" + argumentsWithType.join(", ") + ")"
-      + returnType + " =\n" + methodBody;
+      + returnType + assignment + "\n" + methodBody;
   });
 
   private methodReturnType = this.RULE("methodReturnType", () => {
@@ -187,6 +244,7 @@ class FlixParser extends EmbeddedActionsParser {
     return param.image;
   });
 
+  //[String]
   private singleBracketWithType = this.RULE("singleBracketType", () => {
     this.CONSUME(T.LSquare);
     let instanceType = this.SUBRULE(this.oneOfTheTypes);
@@ -205,14 +263,15 @@ class FlixParser extends EmbeddedActionsParser {
       { ALT: () => this.CONSUME(T.TypeInt32)},
       { ALT: () => this.CONSUME(T.TypeInt64)},
       { ALT: () => this.CONSUME(T.TypeBigInt)},
+      { ALT: () => this.CONSUME(T.Identifier)},
     ]);
     return typeResult.image;
   });
 }
 
-const parser = new FlixParser();
 
 export function parse(s: string, tabSize: number) {
+  const parser = new FlixParser();
 
   const lexResult = flixLexer.tokenize(s);
 

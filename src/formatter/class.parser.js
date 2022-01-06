@@ -5,11 +5,6 @@
 import * as T from './token.js';
 
 export function defineClass($, t) {
-    // https://docs.oracle.com/javase/specs/jls/se16/html/jls-3.html#jls-Literal
-    // $.RULE("singleLineComment", () => {
-    //     const r = $.CONSUME(T.SingleComment);
-    //     return $.getIndentation() + r.image;
-    // });
 
     $.RULE("clazz", () => {
         let className = $.SUBRULE($.clazzNameWithModifier);

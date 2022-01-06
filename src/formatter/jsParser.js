@@ -23,6 +23,8 @@ import {
 
 
 // const method = require("./method.parser.js");
+import * as C from "./class.parser.js";
+import * as I from "./instance.parser.js";
 import * as M from "./method.parser.js";
 
   
@@ -46,7 +48,9 @@ class FlixParser extends EmbeddedActionsParser {
 
         // defineRules.call(this, this);
 
-        M.defineRules.call(this, this);
+        M.defineMethod.call(this, this);
+        I.defineInstance.call(this, this);
+        C.defineClass.call(this, this);
 
         this.performSelfAnalysis();
     }
@@ -61,9 +65,9 @@ class FlixParser extends EmbeddedActionsParser {
             DEF: () => {
                 this.OR([
                     { ALT: () => result += this.SUBRULE(this.singleLineComment) },
-                    // { ALT: () => result += this.SUBRULE(this.multiLineComment) },
-                    // { ALT: () => result += this.SUBRULE(this.instance) },
-                    // { ALT: () => result += this.SUBRULE(this.clazz) },
+                    { ALT: () => result += this.SUBRULE(this.multiLineComment) },
+                    { ALT: () => result += this.SUBRULE(this.instance) },
+                    { ALT: () => result += this.SUBRULE(this.clazz) },
                     // { ALT: () => result += this.SUBRULE(this.javaImport)},
                 ]);
             },
@@ -72,15 +76,15 @@ class FlixParser extends EmbeddedActionsParser {
         return result;
     });
 
-    // singleLineComment = this.RULE("singleLineComment", () => {
-    //     const r = this.CONSUME(T.SingleComment);
-    //     return this.getIndentation() + r.image;
-    // });
+    singleLineComment = this.RULE("singleLineComment", () => {
+        const r = this.CONSUME(T.SingleComment);
+        return this.getIndentation() + r.image;
+    });
 
-    // multiLineComment = this.RULE("multiLineComment", () => {
-    //     const r = this.CONSUME(T.MultiLineComment);
-    //     return r.image;
-    // });
+    multiLineComment = this.RULE("multiLineComment", () => {
+        const r = this.CONSUME(T.MultiLineComment);
+        return r.image;
+    });
 
     // clazz = this.RULE("clazz", () => {
     //     let className = this.SUBRULE(this.clazzNameWithModifier);

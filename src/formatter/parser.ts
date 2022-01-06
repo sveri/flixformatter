@@ -3,7 +3,7 @@ import * as nearley from "nearley";
 import { default as myGrammar } from "../grammar";
 import { parseInstance } from "./instance.parser";
 import { parseClass } from "./class.parser";
-import { FlixMethodParser } from "./method.parser";
+import { defineRules } from "./method.parser";
 
 import {
   createToken,
@@ -26,6 +26,7 @@ class FlixParser extends EmbeddedActionsParser {
   constructor() {
     super(T.allTokens);
     this.indentationLevel = 0;
+    defineRules.call(this, this);
     this.performSelfAnalysis();
   }
 

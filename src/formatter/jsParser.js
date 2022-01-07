@@ -2,7 +2,7 @@
 "use strict";
 
 // const { EmbeddedActionsParser, isRecognitionException } = require("chevrotain");
-import * as T from './token.mjs';
+import * as T from './token';
 
 import {
     createToken,
@@ -10,9 +10,9 @@ import {
     CstParser,
     EmbeddedActionsParser,
 } from "chevrotain";
-import * as C from "./class.parser.mjs";
-import * as I from "./instance.parser.mjs";
-import * as M from "./method.parser.mjs";
+import * as C from "./class.parser";
+import * as I from "./instance.parser";
+import * as M from "./method.parser";
 
 
 
@@ -75,7 +75,7 @@ class FlixParser extends EmbeddedActionsParser {
 }
 
 
-function parse(s, tabSize) {
+export function parse(s, tabSize) {
     const parser = new FlixParser();
 
     const lexResult = flixLexer.tokenize(s);
@@ -95,4 +95,4 @@ function parse(s, tabSize) {
     return parsedResult;
 }
 
-export { parse };
+// export { parse };

@@ -2,7 +2,7 @@
 "use strict";
 
 
-import * as T from './token.mjs';
+import * as T from './token';
 
 export function defineMethod($, t) {
 
@@ -19,8 +19,6 @@ export function defineMethod($, t) {
         });
         $.CONSUME(T.RParen);
         let returnType = $.SUBRULE($.methodReturnType);
-        // $.CONSUME(T.Assignment);
-        // let methodBody = $.SUBRULE($.methodBody);
         let assignment;
         let methodBody = "";
         $.OPTION(() => { assignment = $.CONSUME(T.Assignment); });

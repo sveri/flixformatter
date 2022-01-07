@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { parse } from '../../formatter/parser';
+import { parse } from '../../formatter/jsParser';
 import * as fs from 'fs';
 
 

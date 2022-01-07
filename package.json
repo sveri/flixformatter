@@ -23,9 +23,6 @@
 	],
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
-		"nearley": "npx nearleyc FlixGrammar.ne -o src/grammar.ts",
-		"ntest": "npx nearleyc TestGrammar.ne -o grammar.js && npx nearley-test grammar.js -i \"1+2\n1+2\"",
-		"precompile": "npm run nearley",
 		"compile": "tsc -p ./",
 		"prewatch": "npm run nearley",
 		"watch": "tsc -watch -p ./",
@@ -33,7 +30,7 @@
 		"lint": "eslint src --ext ts",
 		"test": "node ./out/test/runTest.js",
 		"test:unit": "mocha -r ts-node/register src/test/unit/**/*.spec.ts",
-		"test:js": "mocha src/test/unit/**/*.spec.mjs"
+		"test:js": "mocha src/test/unit/**/*.spec.js"
 	},
 	"devDependencies": {
 		"@chevrotain/types": "^9.1.0",

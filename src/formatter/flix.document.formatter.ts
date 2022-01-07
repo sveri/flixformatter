@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
-import {formatCode} from './formatter';
+// import {formatCode} from './formatter';
+
+import {parse} from './jsParser';
 
 
 function getFullTextRange() {
@@ -34,7 +36,8 @@ export class FlixDocumentFormatter implements vscode.DocumentFormattingEditProvi
 
     public provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
         let tabSize = 4;
-        const newText = formatCode(tabSize, document.getText(), getEol(document));
+        // const newText = formatCode(tabSize, document.getText(), getEol(document));
+        const newText = parse(document.getText(), tabSize);
         return [vscode.TextEdit.replace(getFullTextRange(), newText)];
     }
 }

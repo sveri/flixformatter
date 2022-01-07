@@ -2,7 +2,7 @@
 "use strict";
 
 
-import * as T from './token.mjs';
+import * as T from './token';
 
 export function defineClass($, t) {
 

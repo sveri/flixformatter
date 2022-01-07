@@ -30,8 +30,15 @@ export function defineMethod($, t) {
             assignment = " =";
         }
 
+        if (methodBody !== undefined && methodBody.trim().length > 0
+            && (methodBody.length + pubDef.image.length + methodName.image.length + argumentsWithType.join(", ").length
+                + returnType.length < 118)) {
+                    methodBody = " " + methodBody.trim() + "\n";
+        } else {            
+            methodBody = "\n" + methodBody;
+        }
         return $.getIndentation() + pubDef.image + " " + methodName.image + "(" + argumentsWithType.join(", ") + ")"
-            + returnType + assignment + "\n" + methodBody;
+            + returnType + assignment + methodBody;
     });
 
     $.RULE("methodReturnType", () => {
@@ -93,7 +100,7 @@ export function defineMethod($, t) {
     });
 
     // $FLOAT32_ADD$(x, y)
-    $.RULE("referenceMethodCall", () => {
+    $.referenceMethodCall = $.RULE("referenceMethodCall", () => {
         let call = $.CONSUME(T.ReferenceMethodCall);
 
         let argumentsWithoutType = [];

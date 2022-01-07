@@ -4,6 +4,13 @@ import { parse } from '../../formatter/jsParser';
 
 
 describe('Indentation should remain the same for: ', () => {
+    it(`class with sohpisticated types`, () => {
+        expect(parse(`pub lawless class Add[m : Type -> Type] {
+    pub def add(x: a, y: a): a
+}`, 4)).to.equal(`pub lawless class Add[m: Type -> Type] {
+    pub def add(x: a, y: a): a
+}`);
+    });
     it(`one single line comment`, () => {
 
         expect(parse(`//\n`, 4)).to.equal("//");

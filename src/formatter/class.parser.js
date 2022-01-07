@@ -64,7 +64,12 @@ export function defineClass($, t) {
                 }
             }
         ]);
-        let type = $.SUBRULE($.singleBracketWithType);
+        let type = "";
+        $.OR1([
+            { ALT: () => type = $.SUBRULE($.singleBracketWithType) },
+            { ALT: () => type = $.SUBRULE($.bracketWithTypeApplication) },
+        ]);
+        // let type = $.SUBRULE($.singleBracketWithType);
         return pub + " " + lawless + " class " + name + type + " ";;
     });
 }

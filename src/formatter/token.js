@@ -15,6 +15,7 @@ export const TypeInt16 = createToken({ name: "Int16", pattern: /Int16/ });
 export const TypeInt32 = createToken({ name: "Int32", pattern: /Int32/ });
 export const TypeInt64 = createToken({ name: "Int64", pattern: /Int64/ });
 export const TypeBigInt = createToken({ name: "BigInt", pattern: /BigInt/ });
+export const TypeApplication = createToken({ name: "TypeApplication", pattern: /->/ });
 
 export const LParen = createToken({ name: "LParen", pattern: /\(/ });
 export const RParen = createToken({ name: "RParen", pattern: /\)/ });
@@ -76,15 +77,18 @@ export const allTokens = [
   WhiteSpace,
   SingleComment,
   MultiLineComment,
-  Instance, Lawless, Class,
-  PubDef, Pub, As,
+  TypeApplication,
+  
   LParen, RParen,
   LCurly, RCurly,
   LSquare, RSquare,
   Comma, Colon,
   Assignment, Ampersand,
+  
+  PubDef, Pub, As,
   ReferenceMethodCall,
   JavaMethodCall, JavaImport,
+  Instance, Lawless, Class,
 
   TypePure, TypeString,
   TypeFloat32, TypeFloat64,

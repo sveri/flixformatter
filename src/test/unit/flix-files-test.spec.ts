@@ -11,7 +11,7 @@ flixFolderFiles.filter(f => f.isFile()).forEach(f => {
   describe('Indentation should remain the same for: ' + f.name, async () => {
     it(`api file`, async () => {
       let fileContent = fs.readFileSync(`./resources/flixapi/${f.name}`).toString();
-      expect(parse(fileContent, 4)).to.equal(fileContent);
+      expect(parse(fileContent, 4)).to.equal(fileContent.trim());
     });
   });
 

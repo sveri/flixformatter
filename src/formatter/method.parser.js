@@ -115,41 +115,9 @@ export function defineMethod($, t) {
         return $.getIndentation() + call.image + "(" + argumentsWithoutType.join(", ") + ")\n";
     });
 
-    // (x: Float32, y: Float32)
-    $.RULE("argumentsWithType", () => {
-        let param = $.CONSUME(T.Identifier);
-        $.CONSUME(T.Colon);
-        let paramType = $.SUBRULE($.oneOfTheTypes);
-        return param.image + ": " + paramType;
-    });
-
     // (x, y)
     $.RULE("argumentsWithouthType", () => {
         let param = $.CONSUME(T.Identifier);
         return param.image;
-    });
-
-    //[String]
-    $.RULE("singleBracketWithType", () => {
-        $.CONSUME(T.LSquare);
-        let instanceType = $.SUBRULE($.oneOfTheTypes);
-        $.CONSUME(T.RSquare);
-        return "[" + instanceType + "]";
-    });
-
-    $.RULE("oneOfTheTypes", () => {
-        let typeResult = $.OR([
-            { ALT: () => $.CONSUME(T.TypePure) },
-            { ALT: () => $.CONSUME(T.TypeString) },
-            { ALT: () => $.CONSUME(T.TypeFloat32) },
-            { ALT: () => $.CONSUME(T.TypeFloat64) },
-            { ALT: () => $.CONSUME(T.TypeInt8) },
-            { ALT: () => $.CONSUME(T.TypeInt16) },
-            { ALT: () => $.CONSUME(T.TypeInt32) },
-            { ALT: () => $.CONSUME(T.TypeInt64) },
-            { ALT: () => $.CONSUME(T.TypeBigInt) },
-            { ALT: () => $.CONSUME(T.Identifier) },
-        ]);
-        return typeResult.image;
     });
 }

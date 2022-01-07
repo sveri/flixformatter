@@ -2,7 +2,7 @@
 "use strict";
 
 // const { EmbeddedActionsParser, isRecognitionException } = require("chevrotain");
-import * as T from './token.js';
+import * as T from './token.mjs';
 
 import {
     createToken,
@@ -10,9 +10,9 @@ import {
     CstParser,
     EmbeddedActionsParser,
 } from "chevrotain";
-import * as C from "./class.parser.js";
-import * as I from "./instance.parser.js";
-import * as M from "./method.parser.js";
+import * as C from "./class.parser.mjs";
+import * as I from "./instance.parser.mjs";
+import * as M from "./method.parser.mjs";
 
 
 

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import {parse} from '../../formatter/jsParser.js';
+import {parse} from '../../formatter/jsParser.mjs';
 
 // var expect = chai.expect;
 

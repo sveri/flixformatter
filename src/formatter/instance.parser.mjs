@@ -2,7 +2,7 @@
 "use strict";
 
 
-import * as T from './token.js';
+import * as T from './token.mjs';
 
 export function defineInstance($, t) {
 

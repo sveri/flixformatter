@@ -5,12 +5,21 @@ import { parse } from '../../formatter/jsParser';
 
 describe('Indentation should remain the same for: ', () => {
     it(`class with sohpisticated types`, () => {
-        expect(parse(`pub lawless class Add[m : Type -> Type] {
+        expect(parse(`pub lawless class Add[m: Type -> Type] {
     pub def add(x: a, y: a): a
 }`, 4)).to.equal(`pub lawless class Add[m: Type -> Type] {
     pub def add(x: a, y: a): a
 }`);
     });
+
+    it(`class with method sohpisticated types`, () => {
+        expect(parse(`pub lawless class Add[m: Type -> Type] {
+    pub def ap(f: m[a -> b & e], x: m[a]) : m[b] & e
+}`, 4)).to.equal(`pub lawless class Add[m: Type -> Type] {
+    pub def ap(f: m[a -> b & e], x: m[a]) : m[b] & e
+}`);
+    });
+
     it(`one single line comment`, () => {
 
         expect(parse(`//\n`, 4)).to.equal("//");

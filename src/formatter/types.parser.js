@@ -30,7 +30,6 @@ export function defineTypes($, t) {
         $.CONSUME(T.TypeApplication);
         let type2 = $.SUBRULE1($.oneOfTheTypes);
         $.CONSUME(T.RSquare);
-        console.log("typpppppp: \"" + varName.image + "\"");
         return "[" + varName.image + ": " + type1 + " -> " + type2 + "]";
     });
 

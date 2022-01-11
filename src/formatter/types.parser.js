@@ -21,26 +21,30 @@ export function defineTypes($, t) {
         return "[" + instanceType + "]";
     });
 
-    //[m : Type -> Type]
+    //[m: Type -> Type]
     $.RULE("bracketWithArgumentTypeApplication", () => {
         $.CONSUME(T.LSquare);
         let varName = $.CONSUME(T.Identifier);
         $.CONSUME(T.Colon);
-        let type1 = $.SUBRULE($.oneOfTheTypes);
-        $.CONSUME(T.TypeApplication);
-        let type2 = $.SUBRULE1($.oneOfTheTypes);
+        let typeApplication = $.SUBRULE($.typeToTypeApplication);
         $.CONSUME(T.RSquare);
-        return "[" + varName.image + ": " + type1 + " -> " + type2 + "]";
+        return "[" + varName.image + ": " + typeApplication + "]";
     });
 
     //[Type -> Type]
     $.RULE("bracketWithSimpleTypeApplication", () => {
         $.CONSUME(T.LSquare);
+        let typeApplication = $.SUBRULE($.typeToTypeApplication);
+        $.CONSUME(T.RSquare);
+        return "[" + typeApplication + "]";
+    });
+
+    //Type -> Type
+    $.RULE("typeToTypeApplication", () => {
         let type1 = $.SUBRULE($.oneOfTheTypes);
         $.CONSUME(T.TypeApplication);
         let type2 = $.SUBRULE1($.oneOfTheTypes);
-        $.CONSUME(T.RSquare);
-        return "[" + type1 + " -> " + type2 + "]";
+        return type1 + " -> " + type2;
     });
 
     $.RULE("oneOfTheTypes", () => {

@@ -19,4 +19,12 @@ describe('Types Indentation should remain the same for: ', () => {
 }`);
     });
 
+    it(`class with method sohpisticated types "& e" pub def ap(f: m[a -> b & e]): m`, () => {
+        expect(parse(`pub lawless class Add[m: Type -> Type] {
+    pub def ap(f: m[a -> b & e]): m
+}`, 4)).to.equal(`pub lawless class Add[m: Type -> Type] {
+    pub def ap(f: m[a -> b & e]): m
+}`);
+    });
+
 });

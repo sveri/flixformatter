@@ -66,8 +66,8 @@ export function defineClass($, t) {
         ]);
         let type = "";
         $.OR1([
-            { ALT: () => type = $.SUBRULE($.singleBracketWithType) },
-            { ALT: () => type = $.SUBRULE($.bracketWithTypeApplication) },
+            { ALT: () => type = $.SUBRULE($.singleBracketWithType)},
+            { ALT: () => type = $.SUBRULE($.bracketWithArgumentTypeApplication)},
         ]);
         // let type = $.SUBRULE($.singleBracketWithType);
         return pub + " " + lawless + " class " + name + type + " ";;

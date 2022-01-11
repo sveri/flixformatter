@@ -14,15 +14,18 @@ export function defineMethod($, t) {
         $.CONSUME(T.LParen);
         $.MANY_SEP({
             SEP: T.Comma, DEF: () => {
-                argumentsWithType.push($.SUBRULE($.argumentsWithType));
+                let element = "";
+                element = $.SUBRULE($.argumentsWithSimpleType);
+                $.OPTION(() => { element += $.SUBRULE($.bracketWithSimpleTypeApplication);});
+                argumentsWithType.push(element);
             }
         });
         $.CONSUME(T.RParen);
         let returnType = $.SUBRULE($.methodReturnType);
         let assignment;
         let methodBody = "";
-        $.OPTION(() => { assignment = $.CONSUME(T.Assignment); });
-        $.OPTION1(() => { methodBody = $.methodBody(); });
+        $.OPTION1(() => { assignment = $.CONSUME(T.Assignment); });
+        $.OPTION2(() => { methodBody = $.methodBody(); });
 
         if (assignment === undefined) {
             assignment = "";

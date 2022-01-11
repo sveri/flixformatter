@@ -6,7 +6,7 @@ import * as T from './token';
 export function defineTypes($, t) {
 
     // (x: Float32, y: Float32)
-    $.RULE("argumentsWithType", () => {
+    $.RULE("argumentsWithSimpleType", () => {
         let param = $.CONSUME(T.Identifier);
         $.CONSUME(T.Colon);
         let paramType = $.SUBRULE($.oneOfTheTypes);
@@ -22,7 +22,7 @@ export function defineTypes($, t) {
     });
 
     //[m : Type -> Type]
-    $.RULE("bracketWithTypeApplication", () => {
+    $.RULE("bracketWithArgumentTypeApplication", () => {
         $.CONSUME(T.LSquare);
         let varName = $.CONSUME(T.Identifier);
         $.CONSUME(T.Colon);
@@ -31,6 +31,16 @@ export function defineTypes($, t) {
         let type2 = $.SUBRULE1($.oneOfTheTypes);
         $.CONSUME(T.RSquare);
         return "[" + varName.image + ": " + type1 + " -> " + type2 + "]";
+    });
+
+    //[Type -> Type]
+    $.RULE("bracketWithSimpleTypeApplication", () => {
+        $.CONSUME(T.LSquare);
+        let type1 = $.SUBRULE($.oneOfTheTypes);
+        $.CONSUME(T.TypeApplication);
+        let type2 = $.SUBRULE1($.oneOfTheTypes);
+        $.CONSUME(T.RSquare);
+        return "[" + type1 + " -> " + type2 + "]";
     });
 
     $.RULE("oneOfTheTypes", () => {

@@ -1,27 +1,8 @@
 import { expect } from 'chai';
 import { parse } from '../../formatter/jsParser';
-// import { parse } from '../../formatter/parser';
 
 
 describe('Indentation should remain the same for: ', () => {
-    it(`class with sohpisticated types`, () => {
-        expect(parse(`pub lawless class Add[m: Type -> Type] {
-    pub def add(x: a, y: a): a
-}`, 4)).to.equal(`pub lawless class Add[m: Type -> Type] {
-    pub def add(x: a, y: a): a
-}`);
-    });
-
-    it(`class with method sohpisticated types pub def ap(f: m[a -> b]): m`, () => {
-        expect(parse(`pub lawless class Add[m: Type -> Type] {
-    pub def ap(f: m[a -> b]): m
-}`, 4)).to.equal(`pub lawless class Add[m: Type -> Type] {
-    pub def ap(f: m[a -> b]): m
-}`);
-    });
-
-    
-
     it(`single instance with pub def`, () => {
         expect(parse(`instance Add[Float32] {
     pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)

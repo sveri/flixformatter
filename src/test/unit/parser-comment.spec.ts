@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import { parse } from '../../formatter/jsParser';
-// import { parse } from '../../formatter/parser';
 
 
 describe('Comment Indentation should remain the same for: ', () => {

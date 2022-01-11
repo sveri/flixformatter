@@ -10,22 +10,13 @@ export function defineMethod($, t) {
         const pubDef = $.CONSUME(T.PubDef);
         const methodName = $.CONSUME(T.Identifier);
 
-        let argumentsWithType = [];
-        $.CONSUME(T.LParen);
-        $.MANY_SEP({
-            SEP: T.Comma, DEF: () => {
-                let element = "";
-                element = $.SUBRULE($.argumentsWithSimpleType);
-                $.OPTION(() => { element += $.SUBRULE($.bracketWithSimpleTypeApplication);});
-                argumentsWithType.push(element);
-            }
-        });
-        $.CONSUME(T.RParen);
+        let methodArguments = $.SUBRULE($.methodArguments);
         let returnType = $.SUBRULE($.methodReturnType);
+
         let assignment;
         let methodBody = "";
-        $.OPTION1(() => { assignment = $.CONSUME(T.Assignment); });
-        $.OPTION2(() => { methodBody = $.methodBody(); });
+        $.OPTION(() => { assignment = $.CONSUME(T.Assignment); });
+        $.OPTION1(() => { methodBody = $.methodBody(); });
 
         if (assignment === undefined) {
             assignment = "";
@@ -34,14 +25,31 @@ export function defineMethod($, t) {
         }
 
         if (methodBody !== undefined && methodBody.trim().length > 0
-            && (methodBody.length + pubDef.image.length + methodName.image.length + argumentsWithType.join(", ").length
+            && (methodBody.length + pubDef.image.length + methodName.image.length + methodArguments.length
                 + returnType.length < 118)) {
                     methodBody = " " + methodBody.trim() + "\n";
         } else {            
             methodBody = "\n" + methodBody;
         }
-        return $.getIndentation() + pubDef.image + " " + methodName.image + "(" + argumentsWithType.join(", ") + ")"
+        return $.getIndentation() + pubDef.image + " " + methodName.image + methodArguments
             + returnType + assignment + methodBody;
+    });
+
+    $.RULE("methodArguments", () => {        
+        let argumentsWithType = [];
+        $.CONSUME(T.LParen);
+        $.MANY_SEP({
+            SEP: T.Comma, DEF: () => {
+                let element = "";
+                element = $.SUBRULE($.argumentsWithSimpleType);
+                // $.OPTION(() => { element += $.SUBRULE($.bracketWithArgumentTypeApplicationAndType);});
+                $.OPTION(() => { element += $.SUBRULE($.bracketWithSimpleTypeApplication);});
+                // $.OPTION(() => { element += $.SUBRULE($.andType);});
+                argumentsWithType.push(element);
+            }
+        });
+        $.CONSUME(T.RParen);
+        return "(" + argumentsWithType.join(", ") + ")";
     });
 
     $.RULE("methodReturnType", () => {

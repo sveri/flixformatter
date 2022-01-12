@@ -3,7 +3,7 @@ import { parse } from '../../formatter/jsParser';
 
 
 describe('Types Indentation should remain the same for: ', () => {
-    it(`class with sohpisticated types`, () => {
+    it(`class with sohpisticated types Add[m: Type -> Type]`, () => {
         expect(parse(`pub lawless class Add[m: Type -> Type] {
     pub def add(x: a, y: a): a
 }`, 4)).to.equal(`pub lawless class Add[m: Type -> Type] {
@@ -16,6 +16,14 @@ describe('Types Indentation should remain the same for: ', () => {
     pub def ap(f: m[a -> b]): m
 }`, 4)).to.equal(`pub lawless class Add[m: Type -> Type] {
     pub def ap(f: m[a -> b]): m
+}`);
+    });
+
+    it(`class with method multiple sohpisticated types pub def ap(f: m[a -> b]): m`, () => {
+        expect(parse(`pub lawless class Add[m: Type -> Type] {
+    pub def ap(f: m[a -> b], e: m[a -> b]): m
+}`, 4)).to.equal(`pub lawless class Add[m: Type -> Type] {
+    pub def ap(f: m[a -> b], e: m[a -> b]): m
 }`);
     });
 

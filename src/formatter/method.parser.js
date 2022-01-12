@@ -40,11 +40,13 @@ export function defineMethod($, t) {
         $.CONSUME(T.LParen);
         $.MANY_SEP({
             SEP: T.Comma, DEF: () => {
-                let element = "";
-                element = $.SUBRULE($.argumentsWithSimpleType);
-                // $.OPTION(() => { element += $.SUBRULE($.bracketWithArgumentTypeApplicationAndType);});
-                $.OPTION(() => { element += $.SUBRULE($.bracketWithSimpleTypeApplication);});
-                // $.OPTION(() => { element += $.SUBRULE($.andType);});
+                let element = $.SUBRULE($.argumentsWithSimpleType);
+                $.OPTION(() => { 
+                    $.OR([
+                        { ALT: () => element += $.SUBRULE($.bracketWithSimpleTypeApplication)},
+                        { ALT: () => element += $.SUBRULE($.bracketWithArgumentTypeApplication)},
+                    ]);
+                });
                 argumentsWithType.push(element);
             }
         });

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { parse } from '../../formatter/jsParser';
 
 
-describe('Indentation should remain the same for: ', () => {
+describe('Instance Indentation should remain the same for: ', () => {
     it(`single instance with pub def`, () => {
         expect(parse(`instance Add[Float32] {
     pub def add(x: Float32, y: Float32): Float32 = $FLOAT32_ADD$(x, y)

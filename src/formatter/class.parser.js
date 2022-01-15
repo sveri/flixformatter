@@ -36,6 +36,7 @@ export function defineClass($, t) {
         let pub = "", lawless = "", name = "";
         $.OR([
             {
+                // pub lawless class Foo
                 ALT: () => {
                     pub = $.CONSUME(T.Pub).image;
                     lawless = $.CONSUME(T.Lawless).image;
@@ -44,6 +45,7 @@ export function defineClass($, t) {
                 }
             },
             {
+                // lawless class Foo
                 ALT: () => {
                     lawless = $.CONSUME1(T.Lawless).image;
                     $.CONSUME1(T.Class);
@@ -51,12 +53,14 @@ export function defineClass($, t) {
                 }
             },
             {
+                // class Foo
                 ALT: () => {
                     $.CONSUME2(T.Class);
                     name = $.CONSUME2(T.Identifier).image;
                 }
             },
             {
+                // pub class Foo
                 ALT: () => {
                     pub = $.CONSUME1(T.Pub).image;
                     $.CONSUME3(T.Class);
@@ -64,12 +68,24 @@ export function defineClass($, t) {
                 }
             }
         ]);
+        
         let type = "";
         $.OR1([
-            { ALT: () => type = $.SUBRULE($.singleBracketWithType)},
-            { ALT: () => type = $.SUBRULE($.bracketWithArgumentTypeApplication)},
+            // [String]
+            { ALT: () => type = $.SUBRULE($.singleBracketWithType) + " "},
+            // [m: Type -> Type]
+            { ALT: () => type = $.SUBRULE($.bracketWithArgumentTypeApplication) + " "},
         ]);
-        // let type = $.SUBRULE($.singleBracketWithType);
-        return pub + " " + lawless + " class " + name + type + " ";;
+
+        // Functor
+        let functor = "";
+        $.OPTION(() => {
+            functor = $.CONSUME(T.With).image;
+            functor += " ";
+            functor += $.CONSUME(T.Functor).image;
+            functor += $.SUBRULE1($.singleBracketWithType);
+            functor += " ";
+        });
+        return pub + " " + lawless + " class " + name + type + functor;
     });
 }

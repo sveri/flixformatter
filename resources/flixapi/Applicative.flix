@@ -34,16 +34,16 @@
 ///     `ap(f: m[a -> b & e], x: m[a]) : m[b] & e = liftA2(identity, f, x)`
 ///     `liftA2(f: a -> b -> c & e, x: m[a], y: m[b]): m[c] & e = ap(Functor.map(f, x), y)`
 ///
-class Applicative[m : Type -> Type] with Functor[m] {
+class Applicative[m: Type -> Type] with Functor[m] {
     ///
     /// Puts `x` into a default context.
     ///
-    pub def point(x: a) : m[a]
+    pub def point(x: a): m[a]
 
     ///
     /// Apply the function-type applicative `f` to the argument-type applicative `x`.
     ///
-    pub def ap(f: m[a -> b & e], x: m[a]) : m[b] & e
+    pub def ap(f: m[a -> b & e], x: m[a]): m[b] & e
 
     ///
     /// Lift a binary function to work on `Applicative`s.

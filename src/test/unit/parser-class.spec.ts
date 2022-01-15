@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { parse } from '../../formatter/jsParser';
 
 
-describe('Class Indentation should remain the same for: ', () => {    
+describe('Class Indentation should remain the same for: ', () => {
     it(`lawless class with pub def`, () => {
         expect(parse(`///
 /// A type class for addition.
@@ -21,5 +21,13 @@ pub lawless class Add[a] {
     ///
     pub def add(x: a, y: a): a
 }`);
-    });      
+    });
+    
+    it(`class with Functor`, () => {
+        expect(parse(`class Applicative[m: Type -> Type] with Functor[m] {
+    pub def add(x: a, y: a): a
+}`, 4)).to.equal(`class Applicative[m: Type -> Type] with Functor[m] {
+    pub def add(x: a, y: a): a
+}`);
+    });     
 });

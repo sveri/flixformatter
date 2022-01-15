@@ -31,9 +31,11 @@ export const Assignment = createToken({ name: "Assignment", pattern: /=/ });
 export const Instance = createToken({ name: "Instance", pattern: /instance/});
 export const Lawless = createToken({ name: "Lawless", pattern: /lawless/});
 export const Class = createToken({ name: "Class", pattern: /class/});
+export const Functor = createToken({ name: "Functor", pattern: /Functor/});
 export const PubDef = createToken({ name: "PubDef", pattern: /pub def/});
 export const Pub = createToken({ name: "Pub", pattern: /pub/});
 export const As = createToken({ name: "As", pattern: /as/});
+export const With = createToken({ name: "With", pattern: /with/});
 export const Identifier = createToken({ name: "Identifier", pattern: /[a-zA-Z]\w*/ });
 
 export const SingleComment = createToken({
@@ -88,7 +90,7 @@ export const allTokens = [
   PubDef, Pub, As,
   ReferenceMethodCall,
   JavaMethodCall, JavaImport,
-  Instance, Lawless, Class,
+  Instance, Lawless, Class, With, Functor,
 
   TypePure, TypeString,
   TypeFloat32, TypeFloat64,

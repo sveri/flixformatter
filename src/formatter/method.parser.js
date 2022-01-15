@@ -39,18 +39,16 @@ export function defineMethod($, t) {
         let argumentsWithType = [];
         $.CONSUME(T.LParen);
         $.MANY_SEP({
-            SEP: T.Comma, DEF: () => {                
-                let element = $.SUBRULE($.oneOfTheTypes);
-                $.CONSUME(T.Colon);
-                element += ": ";
-                element += $.SUBRULE1($.oneOfTheTypes);
+            SEP: T.Comma, DEF: () => {
+                let element = $.SUBRULE($.argumentsWithSimpleType);
 
                 $.OPTION(() => {
-                    $.CONSUME(T.LSquare);
-                    
+                    $.CONSUME(T.LSquare);                    
                     element += "[";
+
                     element += $.SUBRULE($.typeToTypeApplication);
                     $.OPTION1(() => {element += " " + $.SUBRULE($.andType);});
+                    
                     $.CONSUME(T.RSquare);
                     element += "]";
                 });

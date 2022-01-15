@@ -13,7 +13,7 @@ export function defineClass($, t) {
         let classBody = $.SUBRULE($.classBody);
         $.indentationLevel--;
         $.CONSUME(T.RCurly);
-        return className + "{\n" + classBody + "}\n\n";
+        return className + " {\n" + classBody + "}\n\n";
     });
 
     $.RULE("classBody", () => {
@@ -70,21 +70,20 @@ export function defineClass($, t) {
         ]);
         
         let type = "";
-        $.OR1([
+        $.OPTION(() => $.OR1([
             // [String]
-            { ALT: () => type = $.SUBRULE($.singleBracketWithType) + " "},
+            { ALT: () => type = $.SUBRULE($.singleBracketWithType)},
             // [m: Type -> Type]
-            { ALT: () => type = $.SUBRULE($.bracketWithArgumentTypeApplication) + " "},
-        ]);
+            { ALT: () => type = $.SUBRULE($.bracketWithArgumentTypeApplication)},
+        ]));
 
         // Functor
         let functor = "";
-        $.OPTION(() => {
+        $.OPTION1(() => {
             functor = $.CONSUME(T.With).image;
             functor += " ";
             functor += $.CONSUME(T.Functor).image;
             functor += $.SUBRULE1($.singleBracketWithType);
-            functor += " ";
         });
         return pub + " " + lawless + " class " + name + type + functor;
     });

@@ -25,7 +25,7 @@ pub lawless class Add[a] {
     
     it(`class with Functor`, () => {
         expect(parse(`class Applicative[m: Type -> Type] with Functor[m] {
-    pub def add(x: a, y: a): a
+    pub def add(x: a, y: a): a 
 }`, 4)).to.equal(`class Applicative[m: Type -> Type] with Functor[m] {
     pub def add(x: a, y: a): a
 }`);

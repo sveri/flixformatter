@@ -51,11 +51,28 @@ class FlixParser extends EmbeddedActionsParser {
         this.MANY({
             DEF: () => {
                 this.OR([
+                    // { ALT: () => {                        
+                    //     result += this.SUBRULE(this.oneOfTheTypes);
+                    //     this.CONSUME(T.Colon);
+                    //     result += ": ";
+                    //     result += this.SUBRULE1(this.oneOfTheTypes);
+
+                    //     this.OPTION(() => {
+                    //         this.CONSUME(T.LSquare);
+                            
+                    //         result += "[";
+                    //         result += this.SUBRULE(this.typeToTypeApplication);
+                    //         this.OPTION1(() => {result += this.SUBRULE(this.andType);});
+                    //         this.CONSUME(T.RSquare);
+                    //         result += "]";
+                    //     });
+                    // }},
+
                     { ALT: () => result += this.SUBRULE(this.singleLineComment) },
                     { ALT: () => result += this.SUBRULE(this.multiLineComment) },
                     { ALT: () => result += this.SUBRULE(this.instance) },
                     { ALT: () => result += this.SUBRULE(this.clazz) },
-                    // { ALT: () => result += this.SUBRULE(this.javaImport)},
+                    { ALT: () => result += this.SUBRULE(this.javaImport)},
                 ]);
             },
         });

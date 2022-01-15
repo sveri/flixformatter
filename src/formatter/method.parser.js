@@ -15,8 +15,8 @@ export function defineMethod($, t) {
 
         let assignment;
         let methodBody = "";
-        $.OPTION(() => { assignment = $.CONSUME(T.Assignment); });
-        $.OPTION1(() => { methodBody = $.methodBody(); });
+        $.OPTION(() => assignment = $.CONSUME(T.Assignment));
+        $.OPTION1(() => methodBody = $.methodBody());
 
         if (assignment === undefined) {
             assignment = "";
@@ -27,26 +27,61 @@ export function defineMethod($, t) {
         if (methodBody !== undefined && methodBody.trim().length > 0
             && (methodBody.length + pubDef.image.length + methodName.image.length + methodArguments.length
                 + returnType.length < 118)) {
-                    methodBody = " " + methodBody.trim() + "\n";
-        } else {            
+            methodBody = " " + methodBody.trim() + "\n";
+        } else {
             methodBody = "\n" + methodBody;
         }
         return $.getIndentation() + pubDef.image + " " + methodName.image + methodArguments
             + returnType + assignment + methodBody;
     });
 
-    $.RULE("methodArguments", () => {        
+    $.RULE("methodArguments", () => {
         let argumentsWithType = [];
         $.CONSUME(T.LParen);
         $.MANY_SEP({
-            SEP: T.Comma, DEF: () => {
-                let element = $.SUBRULE($.argumentsWithSimpleType);
-                $.OPTION(() => { 
-                    $.OR([
-                        { ALT: () => element += $.SUBRULE($.bracketWithSimpleTypeApplication)},
-                        { ALT: () => element += $.SUBRULE($.bracketWithArgumentTypeApplication)},
-                    ]);
+            SEP: T.Comma, DEF: () => {                
+                let element = $.SUBRULE($.oneOfTheTypes);
+                $.CONSUME(T.Colon);
+                element += ": ";
+                element += $.SUBRULE1($.oneOfTheTypes);
+
+                $.OPTION(() => {
+                    $.CONSUME(T.LSquare);
+                    
+                    element += "[";
+                    element += $.SUBRULE($.typeToTypeApplication);
+                    $.OPTION1(() => {element += " " + $.SUBRULE($.andType);});
+                    $.CONSUME(T.RSquare);
+                    element += "]";
                 });
+                // let element = $.SUBRULE($.argumentsWithSimpleType);
+                // $.OPTION(() => {
+                //     $.CONSUME(T.LSquare);
+                //     element += "[";
+                //     $.OR([
+                //         {
+                //             ALT: () => {
+                //                 element += $.SUBRULE($.argumentTypeApplication);
+                //                 // does not work because the rule before ends with ] and "& e " is inside the bracket
+                //                 $.OPTION1(() => {element += $.SUBRULE($.andType);});
+                //             }
+                //         },
+                //         { 
+                //             ALT: () => element += $.SUBRULE($.typeToTypeApplication) },
+                //     ]);
+                //     $.CONSUME(T.RSquare);
+                //     element += "]";
+                //     // $.OR([
+                //     //     { ALT: () => element += $.SUBRULE($.bracketWithSimpleTypeApplication) },
+                //     //     {
+                //     //         ALT: () => {
+                //     //             element += $.SUBRULE($.bracketWithArgumentTypeApplication);
+                //     //             // does not work because the rule before ends with ] and "& e " is inside the bracket
+                //     //             $.OPTION1(() => element += $.SUBRULE($.andType));
+                //     //         }
+                //     //     },
+                //     // ]);
+                // });
                 argumentsWithType.push(element);
             }
         });

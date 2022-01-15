@@ -39,6 +39,14 @@ export function defineTypes($, t) {
         return "[" + varName.image + ": " + typeApplication + "]";
     });
 
+    //m: Type -> Type
+    $.RULE("argumentTypeApplication", () => {
+        let varName = $.CONSUME(T.Identifier);
+        $.CONSUME(T.Colon);
+        let typeApplication = $.SUBRULE($.typeToTypeApplication);
+        return "[" + varName.image + ": " + typeApplication + "]";
+    });
+
     //[m: Type -> Type & e]
     $.RULE("bracketWithArgumentTypeApplicationAndType", () => {
         $.CONSUME(T.LSquare);

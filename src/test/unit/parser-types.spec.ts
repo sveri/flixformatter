@@ -3,18 +3,6 @@ import { parse } from '../../formatter/jsParser';
 
 
 describe('Types Indentation should remain the same for: ', () => {
-    // it(`andType types b: Float32`, () => {
-    //     expect(parse(`b: Float32`, 4)).to.equal(`b: Float32`);
-    // });
-    // it(`andType types a -> b`, () => {
-    //     expect(parse(`a: m[a -> b]`, 4)).to.equal(`a: m[a -> b]`);
-    // });
-    // it(`andType types & e`, () => {
-    //     expect(parse(`a: m[a -> b & e]`, 4)).to.equal(`a: m[a -> b& e]`);
-    // });
-
-
-
     it(`class with sohpisticated types Add[m: Type -> Type]`, () => {
         expect(parse(`pub lawless class Add[m: Type -> Type] {
     pub def add(x: a, y: a): a

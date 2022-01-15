@@ -54,34 +54,6 @@ export function defineMethod($, t) {
                     $.CONSUME(T.RSquare);
                     element += "]";
                 });
-                // let element = $.SUBRULE($.argumentsWithSimpleType);
-                // $.OPTION(() => {
-                //     $.CONSUME(T.LSquare);
-                //     element += "[";
-                //     $.OR([
-                //         {
-                //             ALT: () => {
-                //                 element += $.SUBRULE($.argumentTypeApplication);
-                //                 // does not work because the rule before ends with ] and "& e " is inside the bracket
-                //                 $.OPTION1(() => {element += $.SUBRULE($.andType);});
-                //             }
-                //         },
-                //         { 
-                //             ALT: () => element += $.SUBRULE($.typeToTypeApplication) },
-                //     ]);
-                //     $.CONSUME(T.RSquare);
-                //     element += "]";
-                //     // $.OR([
-                //     //     { ALT: () => element += $.SUBRULE($.bracketWithSimpleTypeApplication) },
-                //     //     {
-                //     //         ALT: () => {
-                //     //             element += $.SUBRULE($.bracketWithArgumentTypeApplication);
-                //     //             // does not work because the rule before ends with ] and "& e " is inside the bracket
-                //     //             $.OPTION1(() => element += $.SUBRULE($.andType));
-                //     //         }
-                //     //     },
-                //     // ]);
-                // });
                 argumentsWithType.push(element);
             }
         });

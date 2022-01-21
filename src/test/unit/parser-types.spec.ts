@@ -43,9 +43,9 @@ describe('Types Indentation should remain the same for: ', () => {
 
     });
     it(`method with bracket return types point(x: a): m[a]`, () => {
-        expect(parse(`pub class Add {
+        expect(parse(`pub class Method {
     pub def point(x: a): m[a]
-}`, 4)).to.equal(`pub  class Add {
+}`, 4)).to.equal(`pub class Method {
     pub def point(x: a): m[a]
 }`);
     });

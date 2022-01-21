@@ -62,6 +62,7 @@ export function defineMethod($, t) {
     $.RULE("methodReturnType", () => {
         $.CONSUME(T.Colon);
         let type = $.SUBRULE($.oneOfTheTypes);
+        $.OPTION(() => type += $.SUBRULE($.singleBracketWithType));
         return ": " + type;
     });
 

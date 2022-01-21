@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 "use strict";
-
-
 import * as T from './token';
+
+function emptySpaceIfNotEmpty(s) {
+    return (s !== undefined && s !== "") ? " " : "";
+}
 
 export function defineClass($, t) {
 
@@ -22,9 +24,9 @@ export function defineClass($, t) {
         $.MANY({
             DEF: () => {
                 $.OR([
-                    { ALT: () => result += $.SUBRULE($.method) },
-                    { ALT: () => result += $.SUBRULE($.singleLineComment) },
-                    { ALT: () => result += $.SUBRULE($.multiLineComment) },
+                    { ALT: () => result += $.SUBRULE($.method)},
+                    { ALT: () => result += $.SUBRULE($.singleLineComment)},
+                    { ALT: () => result += $.SUBRULE($.multiLineComment)},
                 ]);
             },
         });
@@ -80,11 +82,12 @@ export function defineClass($, t) {
         // Functor
         let functor = "";
         $.OPTION1(() => {
-            functor = $.CONSUME(T.With).image;
+            functor += " " + $.CONSUME(T.With).image;
             functor += " ";
             functor += $.CONSUME(T.Functor).image;
             functor += $.SUBRULE1($.singleBracketWithType);
         });
-        return pub + " " + lawless + " class " + name + type + functor;
+        return pub + emptySpaceIfNotEmpty(pub) + lawless + emptySpaceIfNotEmpty(lawless) 
+            + "class " + name + type + functor;
     });
 }

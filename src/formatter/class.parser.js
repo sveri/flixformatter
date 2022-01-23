@@ -71,13 +71,7 @@ export function defineClass($, t) {
             }
         ]);
         
-        let type = "";
-        $.OPTION(() => $.OR1([
-            // [String]
-            { ALT: () => type = $.SUBRULE($.singleBracketWithType)},
-            // [m: Type -> Type]
-            { ALT: () => type = $.SUBRULE($.bracketWithArgumentTypeApplication)},
-        ]));
+        let type = $.SUBRULE($.classArgumentType);
 
         // Functor
         let functor = "";

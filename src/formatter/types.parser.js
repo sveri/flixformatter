@@ -5,8 +5,47 @@ import * as T from './token';
 
 export function defineTypes($, t) {
 
-    // (x: Float32, y: Float32)
-    $.RULE("argumentsWithSimpleType", () => {
+    // [String]
+    // [m: Type -> Type]
+    $.RULE("classArgumentType", () => {
+        let type = "";
+        $.OPTION(() => $.OR1([
+            // [String]
+            { ALT: () => type = $.SUBRULE($.singleBracketWithType)},
+            // [m: Type -> Type]
+            { ALT: () => type = $.SUBRULE($.bracketWithArgumentTypeApplication)},
+        ]));
+        return type;
+    });
+
+    // x: Float32
+    // x: Float32[m -> m] 
+    // x: Float32[m -> m & e] 
+    $.RULE("differentMethodArgumentsType", () => {
+        let element = $.SUBRULE($.argumentWithSimpleType);
+
+        $.OPTION(() => {
+            $.CONSUME(T.LSquare);                    
+            element += "[";
+
+            element += $.SUBRULE($.typeToTypeApplication);
+            $.OPTION1(() => {element += " " + $.SUBRULE($.andType);});
+            
+            $.CONSUME(T.RSquare);
+            element += "]";
+        });
+        return element;
+    });
+
+    $.RULE("methodReturnType", () => {
+        $.CONSUME(T.Colon);
+        let type = $.SUBRULE($.oneOfTheTypes);
+        $.OPTION(() => type += $.SUBRULE($.singleBracketWithType));
+        return ": " + type;
+    });
+
+    // x: Float32
+    $.RULE("argumentWithSimpleType", () => {
         let param = $.CONSUME(T.Identifier);
         $.CONSUME(T.Colon);
         let paramType = $.SUBRULE($.oneOfTheTypes);

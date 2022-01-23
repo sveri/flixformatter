@@ -40,30 +40,11 @@ export function defineMethod($, t) {
         $.CONSUME(T.LParen);
         $.MANY_SEP({
             SEP: T.Comma, DEF: () => {
-                let element = $.SUBRULE($.argumentsWithSimpleType);
-
-                $.OPTION(() => {
-                    $.CONSUME(T.LSquare);                    
-                    element += "[";
-
-                    element += $.SUBRULE($.typeToTypeApplication);
-                    $.OPTION1(() => {element += " " + $.SUBRULE($.andType);});
-                    
-                    $.CONSUME(T.RSquare);
-                    element += "]";
-                });
-                argumentsWithType.push(element);
+                argumentsWithType.push($.SUBRULE($.differentMethodArgumentsType));
             }
         });
         $.CONSUME(T.RParen);
         return "(" + argumentsWithType.join(", ") + ")";
-    });
-
-    $.RULE("methodReturnType", () => {
-        $.CONSUME(T.Colon);
-        let type = $.SUBRULE($.oneOfTheTypes);
-        $.OPTION(() => type += $.SUBRULE($.singleBracketWithType));
-        return ": " + type;
     });
 
     $.RULE("methodBody", () => {

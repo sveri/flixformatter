@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 "use strict";
-
 import * as T from './token';
+
+
+
+function emptySpaceIfNotEmpty(s) {
+    return (s !== undefined && s !== "") ? " " : "";
+}
 
 export function defineTypes($, t) {
 
@@ -37,11 +42,15 @@ export function defineTypes($, t) {
         return element;
     });
 
+    // Float32
+    // Float32[m]
     $.RULE("methodReturnType", () => {
         $.CONSUME(T.Colon);
         let type = $.SUBRULE($.oneOfTheTypes);
         $.OPTION(() => type += $.SUBRULE($.singleBracketWithType));
-        return ": " + type;
+        let andType = "";
+        $.OPTION1(() => andType = $.SUBRULE($.andType));
+        return ": " + type + emptySpaceIfNotEmpty(andType) + andType;
     });
 
     // x: Float32

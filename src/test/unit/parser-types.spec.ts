@@ -41,13 +41,21 @@ describe('Types Indentation should remain the same for: ', () => {
     pub def ap(f: m[a -> b & e]): m
 }`);
 
-    });
+});
     it(`method with bracket return types point(x: a): m[a]`, () => {
         expect(parse(`pub class Method {
     pub def point(x: a): m[a]
 }`, 4)).to.equal(`pub class Method {
     pub def point(x: a): m[a]
 }`);
-    });
+});
+
+    it(`method with bracket return types and andType point(x: a): m[a] & r`, () => {
+        expect(parse(`pub class Method {
+    pub def point(x: a): m[a] & r
+}`, 4)).to.equal(`pub class Method {
+    pub def point(x: a): m[a] & r
+}`);
+});
 
 });

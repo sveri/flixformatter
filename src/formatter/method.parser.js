@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 "use strict";
-
-
 import * as T from './token';
 
 export function defineMethod($, t) {

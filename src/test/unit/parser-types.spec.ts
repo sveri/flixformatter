@@ -58,4 +58,23 @@ describe('Types Indentation should remain the same for: ', () => {
 }`);
 });
 
+    it(`method with argument type to type application: (f: t1 -> t2 -> r & e, x1: m[t1], x2: m[t2]): m[r] & e`, () => {
+        expect(parse(`pub class Method {
+    pub def liftA2(f: t1 -> t2): m
+}`, 4)).to.equal(`pub class Method {
+    pub def liftA2(f: t1 -> t2): m
+}`);
+        expect(parse(`pub class Method {
+    pub def liftA2(f: t1 -> t2): m
+}`, 4)).to.equal(`pub class Method {
+    pub def liftA2(f: t1 -> t2): m
+}`);
+//         expect(parse(`pub class Method {
+//     pub def liftA2(f: t1 -> t2 -> r & e, x1: m[t1], x2: m[t2]): m[r] & e
+// }`, 4)).to.equal(`pub class Method {
+//     pub def liftA2(f: t1 -> t2 -> r & e, x1: m[t1], x2: m[t2]): m[r] & e
+// }`);
+
+});
+
 });

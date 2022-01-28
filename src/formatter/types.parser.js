@@ -30,14 +30,20 @@ export function defineTypes($, t) {
         let element = $.SUBRULE($.argumentWithSimpleType);
 
         $.OPTION(() => {
-            $.CONSUME(T.LSquare);                    
-            element += "[";
-
-            element += $.SUBRULE($.typeToTypeApplication);
-            $.OPTION1(() => {element += " " + $.SUBRULE($.andType);});
+            $.OR([
+                { ALT: () => {
+                    $.CONSUME(T.LSquare);                    
+                    element += "[";
+        
+                    element += $.SUBRULE($.typeToTypeApplication);
+                    $.OPTION1(() => {element += " " + $.SUBRULE($.andType);});
+                    
+                    $.CONSUME(T.RSquare);
+                    element += "]";
+                }},
+                { ALT: () => element += $.SUBRULE1($.toTypeApplication)},
+            ]);
             
-            $.CONSUME(T.RSquare);
-            element += "]";
         });
         return element;
     });
@@ -90,9 +96,15 @@ export function defineTypes($, t) {
     //Type -> Type
     $.RULE("typeToTypeApplication", () => {
         let type1 = $.SUBRULE($.oneOfTheTypes);
+        let typeApplication = $.SUBRULE1($.toTypeApplication);
+        return type1 + typeApplication;
+    });
+
+    // -> Type
+    $.RULE("toTypeApplication", () => {
         $.CONSUME(T.TypeApplication);
-        let type2 = $.SUBRULE1($.oneOfTheTypes);
-        return type1 + " -> " + type2;
+        let type = $.SUBRULE1($.oneOfTheTypes);
+        return " -> " + type;
     });
 
     //& e

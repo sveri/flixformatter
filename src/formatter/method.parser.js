@@ -47,12 +47,27 @@ export function defineMethod($, t) {
                     { ALT: () => result += $.SUBRULE($.referenceMethodCall) },
                     { ALT: () => result += $.SUBRULE($.javaImport) },
                     { ALT: () => result += $.SUBRULE($.completeJavaMethodCallWithType) },
+                    { ALT: () => result += $.SUBRULE($.classWithFunctionCall) },
                 ]);
             },
         });
         $.indentationLevel--;
 
         return result;
+    });
+
+    // Applicative.ap(Functor.map(f, x1), x2)
+    $.RULE("classWithFunctionCall", () => {
+        let idents = [];
+        // $.MANY_SEP({
+        //     SEP: T.Dot,
+        //     DEF: () => $.CONSUME(T.Identifier)
+        //   });
+        let mc = $.CONSUME(T.ArbitraryMethodCallWithArguments);
+        // let bp = "";
+        // $.OPTION(() => bp = $.CONSUME(T.BetweenParenthesis).image);
+
+        return $.getIndentation() + mc.image + "\n";
     });
 
     // (x \`concat\` y) as & Pure

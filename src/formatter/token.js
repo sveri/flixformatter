@@ -61,6 +61,19 @@ export const MultiLineComment = createToken({
   // pattern: /\/\*[^*]*\*+(?:[^/*][^*]*\*+)*\/[\n]*/,
 });
 
+
+// Add.foo.bar
+// export const ArbitraryMethodCallWithoutParenthesis = createToken({
+//   name: "ArbitraryMethodCallWithoutParenthesis",
+//   pattern: /[\w]+\.[\w]+[\w\.]*/,
+// });
+
+
+export const ArbitraryMethodCallWithArguments = createToken({
+  name: "ArbitraryMethodCallWithArguments",
+  pattern: /\w+\.\w+[\w\.]*\([\w.\(, \)]*\)/,
+});
+
 // $FLOAT32_ADD$
 export const ReferenceMethodCall = createToken({
   name: "ReferenceMethodCall",
@@ -105,6 +118,8 @@ export const allTokens = [
   TypePure, TypeString,
   TypeFloat32, TypeFloat64,
   TypeInt8, TypeInt16, TypeInt32, TypeInt64, TypeBigInt,
+
+  ArbitraryMethodCallWithArguments,
 
   Identifier,
 ];

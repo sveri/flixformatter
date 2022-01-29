@@ -34,15 +34,8 @@ export function defineMethod($, t) {
     });
 
     $.RULE("methodArguments", () => {
-        let argumentsWithType = [];
-        $.CONSUME(T.LParen);
-        $.MANY_SEP({
-            SEP: T.Comma, DEF: () => {
-                argumentsWithType.push($.SUBRULE($.differentMethodArgumentsType));
-            }
-        });
-        $.CONSUME(T.RParen);
-        return "(" + argumentsWithType.join(", ") + ")";
+        let bp = $.CONSUME(T.BetweenParenthesis);
+        return bp.image;
     });
 
     $.RULE("methodBody", () => {
@@ -64,11 +57,7 @@ export function defineMethod($, t) {
 
     // (x \`concat\` y) as & Pure
     $.RULE("completeJavaMethodCallWithType", () => {
-        $.CONSUME(T.LParen);
-        let lhs = $.SUBRULE($.lhsOfJavaMethodCall);
-        let method = $.CONSUME(T.JavaMethodCall);
-        let rhs = $.SUBRULE($.rhsOfJavaMethodCall);
-        $.CONSUME(T.RParen);
+        let methodCall = $.CONSUME(T.BetweenParenthesis);
 
         $.CONSUME(T.As);
 
@@ -76,9 +65,7 @@ export function defineMethod($, t) {
 
         let type = $.SUBRULE($.oneOfTheTypes);
 
-        // return call.image + "(" + callIdentifier.join(", ") + ")";
-        return $.getIndentation() + "(" + lhs + " " + method.image + " " +
-            rhs + ") as & " + type + "\n";
+        return $.getIndentation() + methodCall.image + " as & " + type + "\n";
     });
 
     $.RULE("lhsOfJavaMethodCall", () => {
@@ -100,22 +87,8 @@ export function defineMethod($, t) {
     // $FLOAT32_ADD$(x, y)
     $.referenceMethodCall = $.RULE("referenceMethodCall", () => {
         let call = $.CONSUME(T.ReferenceMethodCall);
+        let bp = $.CONSUME(T.BetweenParenthesis);
 
-        let argumentsWithoutType = [];
-        $.CONSUME(T.LParen);
-        $.MANY_SEP({
-            SEP: T.Comma, DEF: () => {
-                argumentsWithoutType.push($.SUBRULE($.argumentsWithouthType));
-            }
-        });
-        $.CONSUME(T.RParen);
-
-        return $.getIndentation() + call.image + "(" + argumentsWithoutType.join(", ") + ")\n";
-    });
-
-    // (x, y)
-    $.RULE("argumentsWithouthType", () => {
-        let param = $.CONSUME(T.Identifier);
-        return param.image;
+        return $.getIndentation() + call.image + bp.image + "\n";
     });
 }

@@ -9,13 +9,13 @@ export function defineInstance($, t) {
     $.RULE("instance", () => {
         $.CONSUME(T.Instance);
         let identifier = $.CONSUME(T.Identifier);
-        let instanceType = $.SUBRULE($.singleBracketWithType);
+        let instanceType = $.CONSUME(T.BetweenBrackets);
         $.CONSUME(T.LCurly);
         $.indentationLevel++;
         let instanceBody = $.SUBRULE($.instanceBody);
         $.indentationLevel--;
         $.CONSUME(T.RCurly);
-        return "instance " + identifier.image + instanceType + " {\n" + instanceBody + "}\n\n";
+        return "instance " + identifier.image + instanceType.image + " {\n" + instanceBody + "}\n\n";
     });
 
     $.RULE("instanceBody", () => {

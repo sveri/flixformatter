@@ -14,38 +14,8 @@ export function defineTypes($, t) {
     // [m: Type -> Type]
     $.RULE("classArgumentType", () => {
         let type = "";
-        $.OPTION(() => $.OR1([
-            // [String]
-            { ALT: () => type = $.SUBRULE($.singleBracketWithType)},
-            // [m: Type -> Type]
-            { ALT: () => type = $.SUBRULE($.bracketWithArgumentTypeApplication)},
-        ]));
-        return type;
-    });
-
-    // x: Float32
-    // x: Float32[m -> m] 
-    // x: Float32[m -> m & e] 
-    $.RULE("differentMethodArgumentsType", () => {
-        let element = $.SUBRULE($.argumentWithSimpleType);
-
-        $.OPTION(() => {
-            $.OR([
-                { ALT: () => {
-                    $.CONSUME(T.LSquare);                    
-                    element += "[";
-        
-                    element += $.SUBRULE($.typeToTypeApplication);
-                    $.OPTION1(() => {element += " " + $.SUBRULE($.andType);});
-                    
-                    $.CONSUME(T.RSquare);
-                    element += "]";
-                }},
-                { ALT: () => element += $.SUBRULE1($.toTypeApplication)},
-            ]);
-            
-        });
-        return element;
+        $.OPTION(() =>  type = $.CONSUME(T.BetweenBrackets));
+        return type.image === undefined ? "" : type.image;
     });
 
     // Float32
@@ -53,58 +23,14 @@ export function defineTypes($, t) {
     $.RULE("methodReturnType", () => {
         $.CONSUME(T.Colon);
         let type = $.SUBRULE($.oneOfTheTypes);
-        $.OPTION(() => type += $.SUBRULE($.singleBracketWithType));
+        let bp = "";
+        $.OPTION(() => bp = $.CONSUME(T.BetweenBrackets));
+        if(bp.image !== undefined){
+            type += bp.image;
+        } 
         let andType = "";
         $.OPTION1(() => andType = $.SUBRULE($.andType));
         return ": " + type + emptySpaceIfNotEmpty(andType) + andType;
-    });
-
-    // x: Float32
-    $.RULE("argumentWithSimpleType", () => {
-        let param = $.CONSUME(T.Identifier);
-        $.CONSUME(T.Colon);
-        let paramType = $.SUBRULE($.oneOfTheTypes);
-        return param.image + ": " + paramType;
-    });
-
-    //[String]
-    $.RULE("singleBracketWithType", () => {
-        $.CONSUME(T.LSquare);
-        let instanceType = $.SUBRULE($.oneOfTheTypes);
-        $.CONSUME(T.RSquare);
-        return "[" + instanceType + "]";
-    });
-
-    //[m: Type -> Type]
-    $.RULE("bracketWithArgumentTypeApplication", () => {
-        $.CONSUME(T.LSquare);
-        let varName = $.CONSUME(T.Identifier);
-        $.CONSUME(T.Colon);
-        let typeApplication = $.SUBRULE($.typeToTypeApplication);
-        $.CONSUME(T.RSquare);
-        return "[" + varName.image + ": " + typeApplication + "]";
-    });
-
-    //m: Type -> Type
-    $.RULE("argumentTypeApplication", () => {
-        let varName = $.CONSUME(T.Identifier);
-        $.CONSUME(T.Colon);
-        let typeApplication = $.SUBRULE($.typeToTypeApplication);
-        return "[" + varName.image + ": " + typeApplication + "]";
-    });
-
-    //Type -> Type
-    $.RULE("typeToTypeApplication", () => {
-        let type1 = $.SUBRULE($.oneOfTheTypes);
-        let typeApplication = $.SUBRULE1($.toTypeApplication);
-        return type1 + typeApplication;
-    });
-
-    // -> Type
-    $.RULE("toTypeApplication", () => {
-        $.CONSUME(T.TypeApplication);
-        let type = $.SUBRULE1($.oneOfTheTypes);
-        return " -> " + type;
     });
 
     //& e

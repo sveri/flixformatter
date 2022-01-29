@@ -38,6 +38,17 @@ export const As = createToken({ name: "As", pattern: /as/});
 export const With = createToken({ name: "With", pattern: /with/});
 export const Identifier = createToken({ name: "Identifier", pattern: /[a-zA-Z]\w*/ });
 
+export const BetweenParenthesis = createToken({
+  name: "BetweenParenthesis",
+  pattern: /\(([^)]+)\)/,
+  // probably for nested brackets? (\[(?:\[??[^\[]*?\]))
+});
+
+export const BetweenBrackets = createToken({
+  name: "BetweenBrackets",
+  pattern: /\[([^\]]+)\]/,
+});
+
 export const SingleComment = createToken({
   name: "SingleComment",
   pattern: /\/\/[^\n\r]*?(?:\*\)|[\r\n|\n])/,
@@ -57,12 +68,6 @@ export const ReferenceMethodCall = createToken({
   // pattern: /\$(:?[^\\"]|\\(:?[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*\$/,
 });
 
-// `concat`
-export const JavaMethodCall = createToken({
-  name: "JavaMethodCall",
-  pattern: /`([^`]*)`/,
-});
-
 // import java.lang.String.concat(String);
 export const JavaImport = createToken({
   name: "JavaImport",
@@ -79,6 +84,12 @@ export const allTokens = [
   WhiteSpace,
   SingleComment,
   MultiLineComment,
+
+  JavaImport, 
+
+  BetweenBrackets,
+  BetweenParenthesis,
+
   TypeApplication,
   
   LParen, RParen,
@@ -89,8 +100,7 @@ export const allTokens = [
   
   PubDef, Pub, As,
   ReferenceMethodCall,
-  JavaMethodCall, JavaImport,
-  Instance, Lawless, Class, With, Functor,
+  Instance, Lawless, Class, With, Functor, 
 
   TypePure, TypeString,
   TypeFloat32, TypeFloat64,

@@ -79,7 +79,7 @@ export function defineClass($, t) {
             functor += " " + $.CONSUME(T.With).image;
             functor += " ";
             functor += $.CONSUME(T.Functor).image;
-            functor += $.SUBRULE1($.singleBracketWithType);
+            functor += $.CONSUME(T.BetweenBrackets).image;
         });
         return pub + emptySpaceIfNotEmpty(pub) + lawless + emptySpaceIfNotEmpty(lawless) 
             + "class " + name + type + functor;

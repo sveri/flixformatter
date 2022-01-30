@@ -105,7 +105,7 @@ export function parse(s, tabSize) {
 
     let parsedResult = parser.flix().trim();
 
-    console.log("pr: " + parsedResult);
+    // console.log("pr: " + parsedResult);
 
     return parsedResult;
 }

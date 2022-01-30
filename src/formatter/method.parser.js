@@ -61,7 +61,7 @@ export function defineMethod($, t) {
         let mc = $.CONSUME(T.ArbitraryMethodCallWithArguments);
         let asType = "";
         $.OPTION(() => asType = $.SUBRULE($.asAndType));
-        return $.getIndentation() + mc.image + $.emptySpaceIfNotEmpty(asType) + asType + "\n";
+        return $.getIndentation() + mc.image + $.prefixEmptySpaceIfNotEmpty(asType) + "\n";
     });
 
     // (x \`concat\` y) as & Pure

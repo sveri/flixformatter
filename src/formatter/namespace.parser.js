@@ -68,7 +68,7 @@ export function defineNamespace($, t) {
             // }
         ]);
 
-        return pub + $.emptySpaceIfNotEmpty(pub) + lawless + $.emptySpaceIfNotEmpty(lawless) 
+        return $.postfixEmptySpaceIfNotEmpty(pub) + $.postfixEmptySpaceIfNotEmpty(lawless) 
             + "namespace " + name;
     });
 }

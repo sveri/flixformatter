@@ -25,7 +25,7 @@ export function defineTypes($, t) {
         } 
         let andType = "";
         $.OPTION1(() => andType = $.SUBRULE($.andType));
-        return " " + type + $.emptySpaceIfNotEmpty(andType) + andType;
+        return " " + type + $.prefixEmptySpaceIfNotEmpty(andType);
     });
 
     //as & e

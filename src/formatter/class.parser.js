@@ -78,7 +78,7 @@ export function defineClass($, t) {
             functor += $.CONSUME(T.Functor).image;
             functor += $.CONSUME(T.BetweenBrackets).image;
         });
-        return pub + $.emptySpaceIfNotEmpty(pub) + lawless + $.emptySpaceIfNotEmpty(lawless) 
+        return $.postfixEmptySpaceIfNotEmpty(pub) + $.postfixEmptySpaceIfNotEmpty(lawless) 
             + "class " + name + type + functor;
     });
 }

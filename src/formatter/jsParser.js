@@ -77,8 +77,12 @@ class FlixParser extends EmbeddedActionsParser {
         return " ".repeat(this.tabSize * this.indentationLevel);
     }
 
-    emptySpaceIfNotEmpty(s) {
-        return (s !== undefined && s !== "") ? " " : "";
+    prefixEmptySpaceIfNotEmpty(s) {
+        return (s !== undefined && s !== "") ? " " + s : "";
+    }
+
+    postfixEmptySpaceIfNotEmpty(s) {
+        return (s !== undefined && s !== "") ? s + " " : "";
     }
 
     removeLastCharacter(s) {        

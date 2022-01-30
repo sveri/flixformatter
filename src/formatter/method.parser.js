@@ -30,7 +30,7 @@ export function defineMethod($, t) {
             methodBody = "\n" + methodBody;
         }
         return $.getIndentation() + pubDef.image + " " + methodName.image + methodArguments
-            + returnType + assignment + methodBody;
+            + returnType + assignment + methodBody + "\n";
     });
 
     $.RULE("methodArguments", () => {

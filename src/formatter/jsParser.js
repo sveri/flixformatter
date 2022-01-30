@@ -53,7 +53,6 @@ class FlixParser extends EmbeddedActionsParser {
                     { ALT: () => result += this.SUBRULE(this.multiLineComment) },
                     { ALT: () => result += this.SUBRULE(this.instance) },
                     { ALT: () => result += this.SUBRULE(this.clazz) },
-                    // { ALT: () => result += this.SUBRULE(this.javaImport)},
                 ]);
             },
         });
@@ -79,6 +78,13 @@ class FlixParser extends EmbeddedActionsParser {
         return (s !== undefined && s !== "") ? " " : "";
     }
 
+    removeLastCharacter(s) {        
+        if(typeof s === 'string')   {
+            return s.substring(0, s.length -1);
+        }
+        return s;
+    }
+
 
 }
 
@@ -99,7 +105,7 @@ export function parse(s, tabSize) {
 
     let parsedResult = parser.flix().trim();
 
-    // console.log("pr: " + parsedResult);
+    console.log("pr: " + parsedResult);
 
     return parsedResult;
 }

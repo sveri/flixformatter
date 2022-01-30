@@ -11,7 +11,7 @@ export function defineLaw($, t) {
             { ALT: () => mc = $.CONSUME(T.ArbitraryMethodCallWithArguments)},
             { ALT: () => mc = $.CONSUME(T.Identifier)},
         ]);
-        return $.getIndentation() + law.image + " " + mc.image + "\n";
+        return $.getIndentation() + law.image + " " + mc.image + "\n\n";
     });
 
 

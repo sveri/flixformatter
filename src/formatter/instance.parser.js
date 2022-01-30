@@ -15,7 +15,7 @@ export function defineInstance($, t) {
         let instanceBody = $.SUBRULE($.instanceBody);
         $.indentationLevel--;
         $.CONSUME(T.RCurly);
-        return "instance " + identifier.image + instanceType.image + " {\n" + instanceBody + "}\n\n";
+        return "instance " + identifier.image + instanceType.image + " {\n" + $.removeLastCharacter(instanceBody) + "}\n\n";
     });
 
     $.RULE("instanceBody", () => {

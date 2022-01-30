@@ -8,10 +8,10 @@ export function defineClass($, t) {
         let className = $.SUBRULE($.clazzNameWithModifier);
         $.CONSUME(T.LCurly);
         $.indentationLevel++;
-        let classBody = $.SUBRULE($.classBody);
+        let cb = $.SUBRULE($.classBody);
         $.indentationLevel--;
         $.CONSUME(T.RCurly);
-        return className + " {\n" + classBody + "}\n\n";
+        return className + " {\n" + $.removeLastCharacter(cb) + "}\n\n";
     });
 
     $.RULE("classBody", () => {

@@ -5,13 +5,13 @@ import * as T from './token';
 export function defineNamespace($, t) {
 
     $.RULE("namespace", () => {
-        let className = $.SUBRULE($.namespaceNameWithModifier);
+        let nsName = $.SUBRULE($.namespaceNameWithModifier);
         $.CONSUME(T.LCurly);
         $.indentationLevel++;
         let cb = $.SUBRULE($.namespaceBody);
         $.indentationLevel--;
         $.CONSUME(T.RCurly);
-        return className + " {\n" + $.removeLastCharacter(cb) + "}\n\n";
+        return nsName + " {\n" + $.removeLastCharacter(cb) + "}\n\n";
     });
 
     $.RULE("namespaceBody", () => {

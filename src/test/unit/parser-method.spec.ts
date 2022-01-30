@@ -20,4 +20,12 @@ describe('method Indentation should remain the same for: ', () => {
         Applicative.ap(Applicative.liftA4(f, x1, x2, x3, x4), x5)
 }`);
     });
+
+    it(`method with function assignment and type cast`, () => {
+        expect(parse(`class Applicative[m: Type -> Type] with Functor[m] {
+    pub def foldLeft(f: (b, a) -> b & ef, s: b, a: Array[a]): b & ef = Array.foldLeft(f, s, a) as & ef
+}`, 4)).to.equal(`class Applicative[m: Type -> Type] with Functor[m] {
+    pub def foldLeft(f: (b, a) -> b & ef, s: b, a: Array[a]): b & ef = Array.foldLeft(f, s, a) as & ef
+}`);
+    });
 });

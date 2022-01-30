@@ -16,7 +16,7 @@ export function defineTypes($, t) {
     // Float32
     // Float32[m]
     $.RULE("methodReturnType", () => {
-        $.CONSUME(T.Colon);
+        // $.CONSUME(T.Colon);
         let type = $.SUBRULE($.oneOfTheTypes);
         let bp = "";
         $.OPTION(() => bp = $.CONSUME(T.BetweenBrackets));
@@ -25,7 +25,14 @@ export function defineTypes($, t) {
         } 
         let andType = "";
         $.OPTION1(() => andType = $.SUBRULE($.andType));
-        return ": " + type + $.emptySpaceIfNotEmpty(andType) + andType;
+        return " " + type + $.emptySpaceIfNotEmpty(andType) + andType;
+    });
+
+    //as & e
+    $.RULE("asAndType", () => {
+        $.CONSUME(T.As);
+        let type = $.SUBRULE($.andType);
+        return "as " + type;
     });
 
     //& e

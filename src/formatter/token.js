@@ -58,6 +58,11 @@ export const WhiteSpace = createToken({
   group: Lexer.SKIPPED,
 });
 
+export const BetweenParenthesisWithColon = createToken({
+  name: "BetweenParenthesisWithColon",
+  pattern: /\(.*\)\:/,
+});
+
 export const BetweenParenthesis = createToken({
   name: "BetweenParenthesis",
   pattern: /\(([^)]+)\)/,
@@ -87,7 +92,7 @@ export const ArbitraryMethodCallWithArguments = createToken({
   pattern: /[\w\!]+\.[\w\!]+[\w\.!]*\([\w.\(, \)->!]*\)/,
 });
 
-// Applicative.ap(Functor.map(f, x1), x2)
+// Applicative.ap
 export const ArbitraryMethodCallWithoutArguments = createToken({
   name: "ArbitraryMethodCallWithoutArguments",
   pattern: /[\w\!]+\.[\w\!]+[\w\.!]*/,
@@ -121,6 +126,7 @@ export const allTokens = [
   ArbitraryMethodCallWithArguments, ArbitraryMethodCallWithoutArguments,
   Time, Space,
 
+  BetweenParenthesisWithColon,
   BetweenBrackets,
   BetweenParenthesis,
 

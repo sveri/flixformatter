@@ -88,6 +88,13 @@ class FlixParser extends EmbeddedActionsParser {
         return s;
     }
 
+    // getEmptyStringOrImage(s) {        
+    //     if(s !== undefined && s.image !== undefined)   {
+    //         return s.image;
+    //     }
+    //     return "";
+    // }
+
 
 }
 

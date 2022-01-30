@@ -15,7 +15,6 @@ flixFolderFiles.filter(f => f.isFile() && Path.extname(f.name) === ".flix").forE
       let expectedFileContent = fileContent;
       if(fs.existsSync(`./resources/flixapi/${f.name}_expected`)){
         expectedFileContent = fs.readFileSync(`./resources/flixapi/${f.name}_expected`).toString();      
-        console.log("------------------------- exists");
       }
 
       expect(parse(fileContent, 4)).to.equal(expectedFileContent.trim());

@@ -34,7 +34,7 @@ export function defineMethod($, t) {
     });
 
     $.RULE("methodArguments", () => {
-        let bp = $.CONSUME(T.BetweenParenthesis);
+        let bp = $.CONSUME(T.BetweenParenthesisWithColon);
         return bp.image;
     });
 
@@ -59,20 +59,17 @@ export function defineMethod($, t) {
     // Applicative.ap(Functor.map(f, x1), x2)
     $.RULE("classWithFunctionCall", () => {
         let mc = $.CONSUME(T.ArbitraryMethodCallWithArguments);
-        return $.getIndentation() + mc.image + "\n";
+        let asType = "";
+        $.OPTION(() => asType = $.SUBRULE($.asAndType));
+        return $.getIndentation() + mc.image + $.emptySpaceIfNotEmpty(asType) + asType + "\n";
     });
 
     // (x \`concat\` y) as & Pure
     $.RULE("completeJavaMethodCallWithType", () => {
         let methodCall = $.CONSUME(T.BetweenParenthesis);
+        let asType = $.SUBRULE($.asAndType);
 
-        $.CONSUME(T.As);
-
-        $.CONSUME(T.Ampersand);
-
-        let type = $.SUBRULE($.oneOfTheTypes);
-
-        return $.getIndentation() + methodCall.image + " as & " + type + "\n";
+        return $.getIndentation() + methodCall.image + " " + asType + "\n";
     });
 
     $.RULE("lhsOfJavaMethodCall", () => {

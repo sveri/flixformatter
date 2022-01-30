@@ -27,7 +27,17 @@ export const Ampersand = createToken({ name: "Ampersand", pattern: /&/ });
 export const Comma = createToken({ name: "Comma", pattern: /,/ });
 export const Dot = createToken({ name: "Dot", pattern: /./ });
 export const Colon = createToken({ name: "Colon", pattern: /:/ });
+export const Semicolon = createToken({ name: "Semicolon", pattern: /;/ });
 export const Assignment = createToken({ name: "Assignment", pattern: /=/ });
+export const Pipe = createToken({ name: "Pipe", pattern: /\|>/ });
+export const LTEGT = createToken({ name: "LTEGT", pattern: /<=>/ });
+export const LT = createToken({ name: "LT", pattern: /</ });
+export const GT = createToken({ name: "GT", pattern: />/ });
+export const Plus = createToken({ name: "Plus", pattern: /\+/ });
+export const Minus = createToken({ name: "Minus", pattern: /-/ });
+export const Mult = createToken({ name: "Mult", pattern: /\*/ });
+export const Div = createToken({ name: "Div", pattern: /\// });
+
 export const Instance = createToken({ name: "Instance", pattern: /instance/});
 export const Lawless = createToken({ name: "Lawless", pattern: /lawless/});
 export const Class = createToken({ name: "Class", pattern: /class/});
@@ -36,7 +46,10 @@ export const PubDef = createToken({ name: "PubDef", pattern: /pub def/});
 export const Pub = createToken({ name: "Pub", pattern: /pub/});
 export const As = createToken({ name: "As", pattern: /as/});
 export const With = createToken({ name: "With", pattern: /with/});
-export const Identifier = createToken({ name: "Identifier", pattern: /[a-zA-Z]\w*/ });
+export const Time = createToken({ name: "Time", pattern: /@Time/});
+export const Space = createToken({ name: "Space", pattern: /@Space/});
+export const Number = createToken({ name: "Number", pattern: /[0-9]+/ });
+export const Identifier = createToken({ name: "Identifier", pattern: /[a-zA-Z!]\w*/ });
 
 export const WhiteSpace = createToken({
   name: "WhiteSpace",
@@ -67,17 +80,16 @@ export const MultiLineComment = createToken({
   // pattern: /\/\*[^*]*\*+(?:[^/*][^*]*\*+)*\/[\n]*/,
 });
 
-
-// Add.foo.bar
-// export const ArbitraryMethodCallWithoutParenthesis = createToken({
-//   name: "ArbitraryMethodCallWithoutParenthesis",
-//   pattern: /[\w]+\.[\w]+[\w\.]*/,
-// });
-
 // Applicative.ap(Functor.map(f, x1), x2)
 export const ArbitraryMethodCallWithArguments = createToken({
   name: "ArbitraryMethodCallWithArguments",
-  pattern: /\w+\.\w+[\w\.]*\([\w.\(, \)->]*\)/,
+  pattern: /[\w\!]+\.[\w\!]+[\w\.!]*\([\w.\(, \)->!]*\)/,
+});
+
+// Applicative.ap(Functor.map(f, x1), x2)
+export const ArbitraryMethodCallWithoutArguments = createToken({
+  name: "ArbitraryMethodCallWithoutArguments",
+  pattern: /[\w\!]+\.[\w\!]+[\w\.!]*/,
 });
 
 // $FLOAT32_ADD$
@@ -104,7 +116,9 @@ export const allTokens = [
   SingleComment,
   MultiLineComment,
 
-  JavaImport, LawUntilWithEquals,
+  JavaImport, LawUntilWithEquals, 
+  ArbitraryMethodCallWithArguments, ArbitraryMethodCallWithoutArguments,
+  Time, Space,
 
   BetweenBrackets,
   BetweenParenthesis,
@@ -114,8 +128,9 @@ export const allTokens = [
   LParen, RParen,
   LCurly, RCurly,
   LSquare, RSquare,
-  Comma, Colon,
-  Assignment, Ampersand,
+  Pipe, Assignment,
+  Comma, Colon, Semicolon, LTEGT, LT, GT, Plus, Minus, Mult, Div,
+  Ampersand,
   
   PubDef, Pub, As,
   ReferenceMethodCall,
@@ -125,7 +140,6 @@ export const allTokens = [
   TypeFloat32, TypeFloat64,
   TypeInt8, TypeInt16, TypeInt32, TypeInt64, TypeBigInt,
 
-  ArbitraryMethodCallWithArguments,
-
+  Number,
   Identifier,
 ];

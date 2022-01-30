@@ -39,6 +39,7 @@ export const Mult = createToken({ name: "Mult", pattern: /\*/ });
 export const Div = createToken({ name: "Div", pattern: /\// });
 
 export const Instance = createToken({ name: "Instance", pattern: /instance/});
+export const Namespace = createToken({ name: "Namespace", pattern: /namespace/});
 export const Lawless = createToken({ name: "Lawless", pattern: /lawless/});
 export const Class = createToken({ name: "Class", pattern: /class/});
 export const Functor = createToken({ name: "Functor", pattern: /Functor/});
@@ -134,7 +135,7 @@ export const allTokens = [
   
   PubDef, Pub, As,
   ReferenceMethodCall,
-  Instance, Lawless, Class, With, Functor, 
+  Instance, Namespace, Lawless, Class, With, Functor, 
 
   TypePure, TypeString,
   TypeFloat32, TypeFloat64,

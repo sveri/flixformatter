@@ -4,7 +4,7 @@ import { parse } from '../../formatter/jsParser';
 
 describe('Indentation should remain the same for: ', () => {
 
-    it(`comment, lawless class and instance`, () => {
+    it(`comment, lawless class, namespace and instance`, () => {
         expect(parse(`/*
 *  http://www.apache.org/licenses/LICENSE-2.0
 */
@@ -28,6 +28,10 @@ instance Add[Float64] {
 
 instance Add[Float64] {
     pub def add(x: Float64, y: Float64): Float64 = $FLOAT64_ADD$(x, y)
+}
+
+namespace Array {
+    pub def add(x: a, y: a): a
 }`, 4)).to.equal(`/*
 *  http://www.apache.org/licenses/LICENSE-2.0
 */
@@ -51,6 +55,10 @@ instance Add[Float64] {
 
 instance Add[Float64] {
     pub def add(x: Float64, y: Float64): Float64 = $FLOAT64_ADD$(x, y)
+}
+
+namespace Array {
+    pub def add(x: a, y: a): a
 }`);
     });
 });

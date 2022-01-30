@@ -14,6 +14,7 @@ import * as C from "./class.parser";
 import * as I from "./instance.parser";
 import * as M from "./method.parser";
 import * as L from "./law.parser";
+import * as N from "./namespace.parser";
 import * as Ty from "./types.parser";
 
 
@@ -40,6 +41,7 @@ class FlixParser extends EmbeddedActionsParser {
         L.defineLaw.call(this, this);
         I.defineInstance.call(this, this);
         C.defineClass.call(this, this);
+        N.defineNamespace.call(this, this);
 
         this.performSelfAnalysis();
     }
@@ -49,10 +51,11 @@ class FlixParser extends EmbeddedActionsParser {
         this.MANY({
             DEF: () => {
                 this.OR([
-                    { ALT: () => result += this.SUBRULE(this.singleLineComment) },
-                    { ALT: () => result += this.SUBRULE(this.multiLineComment) },
-                    { ALT: () => result += this.SUBRULE(this.instance) },
-                    { ALT: () => result += this.SUBRULE(this.clazz) },
+                    { ALT: () => result += this.SUBRULE(this.singleLineComment)},
+                    { ALT: () => result += this.SUBRULE(this.multiLineComment)},
+                    { ALT: () => result += this.SUBRULE(this.instance)},
+                    { ALT: () => result += this.SUBRULE(this.clazz)},
+                    { ALT: () => result += this.SUBRULE(this.namespace)},
                 ]);
             },
         });

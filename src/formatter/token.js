@@ -38,6 +38,12 @@ export const As = createToken({ name: "As", pattern: /as/});
 export const With = createToken({ name: "With", pattern: /with/});
 export const Identifier = createToken({ name: "Identifier", pattern: /[a-zA-Z]\w*/ });
 
+export const WhiteSpace = createToken({
+  name: "WhiteSpace",
+  pattern: /\s+/,
+  group: Lexer.SKIPPED,
+});
+
 export const BetweenParenthesis = createToken({
   name: "BetweenParenthesis",
   pattern: /\(([^)]+)\)/,
@@ -68,7 +74,7 @@ export const MultiLineComment = createToken({
 //   pattern: /[\w]+\.[\w]+[\w\.]*/,
 // });
 
-
+// Applicative.ap(Functor.map(f, x1), x2)
 export const ArbitraryMethodCallWithArguments = createToken({
   name: "ArbitraryMethodCallWithArguments",
   pattern: /\w+\.\w+[\w\.]*\([\w.\(, \)]*\)/,
@@ -87,10 +93,10 @@ export const JavaImport = createToken({
   pattern: /import ([^;]*);/,
 });
 
-export const WhiteSpace = createToken({
-  name: "WhiteSpace",
-  pattern: /\s+/,
-  group: Lexer.SKIPPED,
+// law identity: forall(x: m[a]) with Eq[m[a]] . Applicative.ap(Applicative.point(identity), x) ==
+export const LawUntilWithEquals = createToken({
+  name: "LawUntilWithEquals",
+  pattern: /law [\w: \(\)\[\].,->]*==/,
 });
 
 export const allTokens = [
@@ -98,7 +104,7 @@ export const allTokens = [
   SingleComment,
   MultiLineComment,
 
-  JavaImport, 
+  JavaImport, LawUntilWithEquals,
 
   BetweenBrackets,
   BetweenParenthesis,

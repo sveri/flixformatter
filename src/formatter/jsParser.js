@@ -13,6 +13,7 @@ import {
 import * as C from "./class.parser";
 import * as I from "./instance.parser";
 import * as M from "./method.parser";
+import * as L from "./law.parser";
 import * as Ty from "./types.parser";
 
 
@@ -36,6 +37,7 @@ class FlixParser extends EmbeddedActionsParser {
 
         Ty.defineTypes.call(this, this);
         M.defineMethod.call(this, this);
+        L.defineLaw.call(this, this);
         I.defineInstance.call(this, this);
         C.defineClass.call(this, this);
 
@@ -92,7 +94,6 @@ export function parse(s, tabSize) {
     }
 
     let parsedResult = parser.flix().trim();
-    console.log("parsedResult: " + parsedResult);
 
     return parsedResult;
 }

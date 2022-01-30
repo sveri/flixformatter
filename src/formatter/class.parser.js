@@ -25,6 +25,7 @@ export function defineClass($, t) {
             DEF: () => {
                 $.OR([
                     { ALT: () => result += $.SUBRULE($.method)},
+                    { ALT: () => result += $.SUBRULE($.law)},
                     { ALT: () => result += $.SUBRULE($.singleLineComment)},
                     { ALT: () => result += $.SUBRULE($.multiLineComment)},
                 ]);

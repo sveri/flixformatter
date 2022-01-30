@@ -44,10 +44,6 @@ class FlixParser extends EmbeddedActionsParser {
         this.performSelfAnalysis();
     }
 
-    getIndentation() {
-        return " ".repeat(this.tabSize * this.indentationLevel);
-    }
-
     flix = this.RULE("file", () => {
         let result = "";
         this.MANY({
@@ -75,6 +71,14 @@ class FlixParser extends EmbeddedActionsParser {
         return r.image;
     });
 
+    getIndentation() {
+        return " ".repeat(this.tabSize * this.indentationLevel);
+    }
+
+    emptySpaceIfNotEmpty(s) {
+        return (s !== undefined && s !== "") ? " " : "";
+    }
+
 
 }
 
@@ -94,6 +98,8 @@ export function parse(s, tabSize) {
     }
 
     let parsedResult = parser.flix().trim();
+
+    // console.log("pr: " + parsedResult);
 
     return parsedResult;
 }

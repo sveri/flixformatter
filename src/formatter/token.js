@@ -77,7 +77,7 @@ export const MultiLineComment = createToken({
 // Applicative.ap(Functor.map(f, x1), x2)
 export const ArbitraryMethodCallWithArguments = createToken({
   name: "ArbitraryMethodCallWithArguments",
-  pattern: /\w+\.\w+[\w\.]*\([\w.\(, \)]*\)/,
+  pattern: /\w+\.\w+[\w\.]*\([\w.\(, \)->]*\)/,
 });
 
 // $FLOAT32_ADD$

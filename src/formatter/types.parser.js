@@ -3,11 +3,6 @@
 import * as T from './token';
 
 
-
-function emptySpaceIfNotEmpty(s) {
-    return (s !== undefined && s !== "") ? " " : "";
-}
-
 export function defineTypes($, t) {
 
     // [String]
@@ -30,7 +25,7 @@ export function defineTypes($, t) {
         } 
         let andType = "";
         $.OPTION1(() => andType = $.SUBRULE($.andType));
-        return ": " + type + emptySpaceIfNotEmpty(andType) + andType;
+        return ": " + type + $.emptySpaceIfNotEmpty(andType) + andType;
     });
 
     //& e

@@ -2,10 +2,6 @@
 "use strict";
 import * as T from './token';
 
-function emptySpaceIfNotEmpty(s) {
-    return (s !== undefined && s !== "") ? " " : "";
-}
-
 export function defineClass($, t) {
 
     $.RULE("clazz", () => {
@@ -82,7 +78,7 @@ export function defineClass($, t) {
             functor += $.CONSUME(T.Functor).image;
             functor += $.CONSUME(T.BetweenBrackets).image;
         });
-        return pub + emptySpaceIfNotEmpty(pub) + lawless + emptySpaceIfNotEmpty(lawless) 
+        return pub + $.emptySpaceIfNotEmpty(pub) + lawless + $.emptySpaceIfNotEmpty(lawless) 
             + "class " + name + type + functor;
     });
 }
